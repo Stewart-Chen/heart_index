@@ -9,7 +9,7 @@
     --bg:#0b1320; --card:#121a2b; --muted:#9bb0d3; --text:#eaf2ff;
     --accent:#59d1c5; --accent-2:#7aa6ff; --grid:#24314d;
     --good:#4fe0b0; --warn:#ffb14a; --bad:#ff6b6b;
-    --brand:#1bb1c9; /* 面板可覆寫 */
+    --brand:#1bb1c9;
   }
   @media (prefers-color-scheme: light){
     :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#5b6f93; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
@@ -20,13 +20,13 @@
     background:linear-gradient(180deg, var(--bg) 0%, #0e182b 100%); color:var(--text);
   }
   header{
-    padding:24px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    padding:24px 18px; display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px;
     position:sticky; top:0; backdrop-filter:saturate(140%) blur(6px);
   }
   .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
   .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand), #52d09b)}
   .pill{padding:8px 12px; border:1px solid #ffffff26; border-radius:999px; color:var(--muted); font-size:12px}
-  .wrap{max-width:1100px;margin:0 auto;padding:0 18px 48px}
+  .wrap{max-width:1160px;margin:0 auto;padding:0 18px 48px}
   .tab{padding:10px 14px; border-radius:10px; background:#ffffff12; color:var(--text); border:1px solid #ffffff24; cursor:pointer; user-select:none; font-weight:600}
   .tab.active{background:linear-gradient(135deg,#1bb1c922, #52d09b22); border-color:#6de3c2aa}
   .grid{display:grid; gap:18px; grid-template-columns:1.2fr .8fr}
@@ -39,14 +39,13 @@
   .tbl{width:100%;border-collapse:collapse;font-size:14px}
   .tbl th,.tbl td{padding:10px;border-bottom:1px solid #ffffff14}
   .muted{color:var(--muted)}
-  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .input{display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14;min-width:140px}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+  .input{display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14}
   .input label{font-size:12px;color:var(--muted)}
-  .input input,.input textarea{padding:8px;border-radius:8px;border:1px solid #ffffff24;background:#0000;color:var(--text)}
-  .input textarea{min-height:42px}
+  .input input,.input textarea{padding:8px;border-radius:8px;border:1px solid #ffffff24;background:#0000;color:var(--text);min-width:140px}
+  .input textarea{min-height:44px}
   .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#52d09b); color:#0a1320;font-weight:800;border:none;cursor:pointer}
   .btn.secondary{background:#ffffff14;color:var(--text);border:1px solid #ffffff24}
-  .btn.ghost{background:#ffffff10;color:var(--text);border:1px dashed #ffffff40}
   canvas{width:100%;height:auto;max-height:460px;display:block}
   .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
   .dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
@@ -64,7 +63,7 @@
     .print-container{ position:absolute; inset:0; width:100%; -webkit-print-color-adjust:exact; print-color-adjust:exact }
 
     .page{ background:#fff; padding:0 4mm 2mm 4mm }
-    .page:not(:last-child){ page-break-after:always }  /* 不再多一張空白頁 */
+    .page:not(:last-child){ page-break-after:always }
     .ph{ font-size:11px; color:#777; letter-spacing:.3px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e6e6e6; padding:2mm 0 }
     .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
     .psub{ color:#333; margin:0 0 3mm }
@@ -74,10 +73,11 @@
     .section-title{ font-weight:800; margin:4mm 0 2mm; border-left:4px solid var(--brand); padding-left:3mm }
     .small{ font-size:12.5px; color:#333; line-height:1.7 }
     .pfooter{ font-size:10px; color:#888; border-top:1px solid #eee; padding-top:2mm; margin-top:3mm }
-
-    /* A4 同頁兩張圖：固定尺寸，確保不溢位到下一頁 */
     .radarPrint{ width:185mm; height:92mm; display:block; margin:2mm 0 1mm }
   }
+  .panel{display:none}
+  .panel.active{display:block}
+  .subhead{font-weight:700;margin-top:6px;margin-bottom:2px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -90,7 +90,7 @@
     <button class="tab" data-tab="pro">Pro（季度）</button>
     <button class="tab" data-tab="ent">Enterprise（年度）</button>
 
-    <!-- 品牌 / 報告表單 -->
+    <!-- 品牌基本資料 -->
     <div style="flex-basis:100%;height:0"></div>
     <div class="row">
       <div class="input"><label>公司名稱</label><input id="company" value="心聚坊 HeartHub Studio"></div>
@@ -98,21 +98,94 @@
       <div class="input"><label>報告日期</label><input id="rdate" type="date"></div>
       <div class="input"><label>Logo 圖片 URL</label><input id="logoUrl" placeholder="https://.../logo.png"></div>
       <div class="input"><label>封面主色</label><input id="brandColor" type="color" value="#1bb1c9"></div>
-    </div>
-
-    <!-- 內容自訂（新增） -->
-    <div class="row" style="margin-top:8px">
-      <div class="input"><label>老師滿意度平均（/5）</label><input id="teacherSat" type="number" step="0.1" min="0" max="5" value="4.3"></div>
-      <div class="input" style="min-width:280px"><label>建議處方（每行一點）</label><textarea id="suggestions" placeholder="強化業務部專注力模組&#10;推廣園藝挑戰包"></textarea></div>
-      <div class="input" style="min-width:280px"><label>學員一句話（以換行/逗點分隔）</label><textarea id="quotes" placeholder="很放鬆&#10;團隊更凝聚&#10;專注變好"></textarea></div>
-    </div>
-
-    <div class="row" style="margin-top:8px">
       <div class="input"><label>雷達標籤字級 (px)</label><input type="number" id="fontPx" value="16" min="10" max="28" step="1" /></div>
-      <button class="btn secondary" id="btnFontApply">套用字級</button>
-      <button class="btn" id="btnApplyBrand">套用品牌/內容</button>
+      <div class="input"><label>聯絡信箱（PDF 法遵）</label><input id="contactEmail" value="support@example.com"></div>
+      <button class="btn" id="btnApplyBrand">套用內容</button>
       <button class="btn secondary" id="btnPrint">輸出 PDF</button>
-      <button class="btn ghost" id="btnTheme">切換主題</button>
+    </div>
+
+    <!-- 依分頁顯示的輸入面板 -->
+    <!-- Lite -->
+    <div class="panel active" id="panel-lite" style="flex-basis:100%">
+      <div class="subhead">Lite｜單場即時</div>
+      <div class="row">
+        <div class="input"><label>穩定度 Δ</label><input type="number" step="0.1" id="lite_stable" value="0.8"></div>
+        <div class="input"><label>壓力復原 Δ</label><input type="number" step="0.1" id="lite_res" value="1.1"></div>
+        <div class="input"><label>社會連結 Δ</label><input type="number" step="0.1" id="lite_social" value="0.9"></div>
+        <div class="input"><label>專注力 Δ</label><input type="number" step="0.1" id="lite_focus" value="0.6"></div>
+        <div class="input"><label>72h 維持率</label><input id="lite_hold" value="76%"></div>
+        <div class="input"><label>NPS</label><input id="lite_nps" value="+68"></div>
+        <div class="input"><label>學員數</label><input id="lite_learners" type="number" value="28"></div>
+      </div>
+      <div class="row">
+        <div class="input" style="min-width:280px"><label>學員一句話（每行一則）</label>
+          <textarea id="lite_quotes">很久沒有這麼放鬆了
+和同事一起畫畫很開心
+壓力真的有緩解</textarea></div>
+        <div class="input" style="min-width:280px"><label>行動採納（72h）</label>
+          <input id="lite_actions" value="呼吸練習 60%｜塗鴉 45%｜感謝同事 30%"></div>
+        <div class="input" style="min-width:280px"><label>下一步建議（每行一點）</label>
+          <textarea id="lite_next">下載「家庭挑戰包」
+老師優化教學清晰度（平均 4.3/5）
+企業導入季度方案</textarea></div>
+      </div>
+      <button class="btn secondary" id="btnLiteApply">套用 Lite</button>
+    </div>
+
+    <!-- Pro -->
+    <div class="panel" id="panel-pro" style="flex-basis:100%">
+      <div class="subhead">Pro｜季度摘要</div>
+      <div class="row">
+        <div class="input"><label>場次</label><input id="pro_sessions" type="number" value="8"></div>
+        <div class="input"><label>學員數</label><input id="pro_learners" type="number" value="172"></div>
+        <div class="input"><label>平均 Δ</label><input id="pro_avgDelta" value="+0.85"></div>
+        <div class="input"><label>平均 NPS</label><input id="pro_avgNPS" value="+65"></div>
+      </div>
+      <div class="subhead">雷達圖①｜各部門 Δ（穩定度 / 壓力復原 / 社會連結 / 專注力）</div>
+      <div class="row">
+        <div class="input"><label>行政部</label><input id="pro_admin" value="1.1,1.2,1.0,0.8"></div>
+        <div class="input"><label>業務部</label><input id="pro_sales" value="0.6,0.7,0.5,0.6"></div>
+        <div class="input"><label>研發部</label><input id="pro_rd" value="0.9,1.0,0.8,0.7"></div>
+      </div>
+      <div class="subhead">部門比較（熱門行動）</div>
+      <div class="row">
+        <div class="input"><label>行政部 熱門行動</label><input id="pro_hot_admin" value="呼吸練習"></div>
+        <div class="input"><label>業務部 熱門行動</label><input id="pro_hot_sales" value="感恩挑戰"></div>
+        <div class="input"><label>研發部 熱門行動</label><input id="pro_hot_rd" value="園藝挑戰"></div>
+      </div>
+      <div class="row">
+        <div class="input" style="min-width:320px"><label>建議處方（每行一點）</label>
+          <textarea id="pro_suggestions">強化業務部：專注力模組
+持續推廣園藝挑戰包（高轉化）</textarea></div>
+      </div>
+      <button class="btn secondary" id="btnProApply">套用 Pro</button>
+    </div>
+
+    <!-- Enterprise -->
+    <div class="panel" id="panel-ent" style="flex-basis:100%">
+      <div class="subhead">Enterprise｜年度摘要</div>
+      <div class="row">
+        <div class="input"><label>總場次</label><input id="ent_total" type="number" value="30"></div>
+        <div class="input"><label>學員數</label><input id="ent_learners" type="number" value="560"></div>
+        <div class="input"><label>平均 Δ</label><input id="ent_avgDelta" value="+0.92"></div>
+        <div class="input"><label>NPS 年均</label><input id="ent_npsYear" value="+70"></div>
+      </div>
+      <div class="subhead">雷達圖①｜年度均值 / 產業常模（穩定度 / 壓力復原 / 社會連結 / 專注力）</div>
+      <div class="row">
+        <div class="input"><label>本年度均值</label><input id="ent_year" value="0.9,1.2,1.0,0.7"></div>
+        <div class="input"><label>產業常模</label><input id="ent_norm" value="0.7,0.9,0.8,0.6"></div>
+        <div class="input"><label>NPS（本公司）</label><input id="ent_nps_company" value="70"></div>
+        <div class="input"><label>NPS（產業常模）</label><input id="ent_nps_industry" value="58"></div>
+      </div>
+      <div class="row">
+        <div class="input" style="min-width:320px"><label>ROI 故事</label>
+          <textarea id="ent_roi">78% 員工壓力復原顯著改善；42% 把練習帶進團隊文化，形成可持續的療癒飛輪。</textarea></div>
+        <div class="input" style="min-width:320px"><label>年度建議（每行一點）</label>
+          <textarea id="ent_plan">續約年度療癒方案（12 場）
+新增「專注力進階課程」
+國際據點可複製導入</textarea></div>
+      </div>
+      <button class="btn secondary" id="btnEntApply">套用 Enterprise</button>
     </div>
   </header>
 
@@ -125,12 +198,8 @@
 
         <div class="kpis" id="kpis"></div>
 
-        <h3 style="margin-top:14px">編輯四指標 Δ 值</h3>
+        <h3 style="margin-top:14px">雷達圖設定</h3>
         <div class="row">
-          <div class="input"><label>穩定度 Δ</label><input type="number" step="0.1" id="v_stable" value="0.8"></div>
-          <div class="input"><label>壓力復原 Δ</label><input type="number" step="0.1" id="v_res" value="1.1"></div>
-          <div class="input"><label>社會連結 Δ</label><input type="number" step="0.1" id="v_social" value="0.9"></div>
-          <div class="input"><label>專注力 Δ</label><input type="number" step="0.1" id="v_focus" value="0.6"></div>
           <button class="btn" id="btnUpdate">更新圖表</button>
         </div>
       </section>
@@ -138,8 +207,9 @@
       <aside class="card">
         <h2>操作小抄</h2>
         <ul class="muted" style="line-height:1.6">
-          <li>上方面板設定公司/Logo/主色/日期/專案與內容，自動帶入 PDF。</li>
-          <li>第二頁兩張雷達圖以 **PNG 固定尺寸** 輸出，保證不跑版。</li>
+          <li>先選上方分頁（Lite / Pro / Enterprise），填寫該分頁的欄位，按「套用」。</li>
+          <li>PDF 第二頁的兩張雷達圖以 <b>PNG 固定尺寸</b> 輸出，確保不跑版。</li>
+          <li>沒有 Logo 時會顯示 <b>SVG 主色塊</b>，列印也會顯示顏色。</li>
         </ul>
         <div class="row" style="margin-top:8px">
           <span class="tag">四指標：穩定度／壓力復原／社會連結／專注力</span>
@@ -175,7 +245,7 @@
       <div class="ph"><span id="phLeft"></span><span>心聚指標報告（Lite / Pro / Enterprise）</span><span id="phRight"></span></div>
       <div style="display:flex;align-items:center;gap:6mm;margin:6mm 0 4mm">
         <img id="plogo" alt="" style="width:20mm;height:20mm;object-fit:contain;border-radius:4px;display:none">
-        <!-- 沒 Logo 時顯示 SVG 主色塊（印表機也顯色） -->
+        <!-- 沒 Logo → SVG 主色塊（列印也顯色） -->
         <svg id="pcolorSVG" width="20mm" height="20mm" viewBox="0 0 100 100" style="border-radius:6px;display:none">
           <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="var(--brand)"/><stop offset="100%" stop-color="#52d09b"/></linearGradient></defs>
@@ -189,11 +259,10 @@
       <div class="ptitle">心聚指標成效報告（<span id="printTabName">Lite</span>）</div>
       <p class="psub">公司：<span id="pcompany2">心聚坊 HeartHub Studio</span>　專案：<span id="pproject">—</span>　日期：<span id="printDate"></span></p>
       <div class="kpis print" id="pkpis" style="margin-top:2mm"></div>
-      <div class="small" id="pteachersat" style="margin-top:2mm"></div>
       <div class="pfooter"><span id="footLeft"></span><span style="float:right">第 1 / 3 頁</span></div>
     </section>
 
-    <!-- P2 圖表（PNG 固定尺寸，穩定不跑版） -->
+    <!-- P2 圖表（PNG 固定尺寸） -->
     <section class="page" id="p2">
       <div class="ph"><span id="phLeft2"></span><span>指標雷達 & 情緒雷達</span><span id="phRight2"></span></div>
       <div class="section-title">雷達圖①｜心聚四指標</div>
@@ -205,7 +274,7 @@
       <div class="pfooter"><span id="footLeft2"></span><span style="float:right">第 2 / 3 頁</span></div>
     </section>
 
-    <!-- P3 表格 + 建議/語錄 + 法遵 -->
+    <!-- P3 表格 + 建議/語錄/ROI + 法遵 -->
     <section class="page" id="p3">
       <div class="ph"><span id="phLeft3"></span><span>重點摘要與合規聲明</span><span id="phRight3"></span></div>
       <div class="section-title" id="ptbl_title">報告重點表</div>
@@ -214,8 +283,14 @@
       <div class="section-title" style="margin-top:5mm">建議處方</div>
       <div class="pcard small" id="psuggest"></div>
 
-      <div class="section-title" style="margin-top:5mm">學員一句話</div>
+      <div class="section-title" id="pquoteTitle" style="margin-top:5mm">學員一句話</div>
       <div class="pcard small" id="pquotes"></div>
+
+      <div class="section-title" id="proiTitle" style="margin-top:5mm; display:none">ROI 故事</div>
+      <div class="pcard small" id="proi" style="display:none"></div>
+
+      <div class="section-title" id="pplanTitle" style="margin-top:5mm; display:none">年度建議</div>
+      <div class="pcard small" id="pplan" style="display:none"></div>
 
       <div class="section-title" style="margin-top:5mm">法遵與版權聲明</div>
       <div class="pcard small">
@@ -242,23 +317,67 @@ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
 const avg=a=>a.reduce((x,y)=>x+y,0)/a.length;
 const pickColor=i=>['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff'][i%8];
 const hexToRgba=(h,a)=>{h=h.replace('#','');const n=parseInt(h,16);const r=(n>>16)&255,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`;};
+const parseList = (txt) => (txt||'').split(/\n|；|;|,|，/).map(s=>s.trim()).filter(Boolean);
+const parseFour = (txt,def=[0,0,0,0])=>{
+  const m=(txt||'').split(/,|\s+/).map(Number).filter(n=>!isNaN(n));
+  return m.length===4?m:def;
+};
 
 /* ---------- 狀態 ---------- */
 const state = {
-  tab:'pro',
-  indicators:{stable:0.8,res:1.1,social:0.9,focus:0.6},
+  tab:'lite',
   radarFontPx:16,
-  exports:{},
   brand:{company:'心聚坊 HeartHub Studio',project:'',date:'',logoUrl:'',color:'#1bb1c9',contact:'support@example.com'},
-  extra:{teacherSat:4.3,suggestions:'',quotes:''}
+  lite:{
+    deltas:{stable:0.8,res:1.1,social:0.9,focus:0.6},
+    kpi:{hold:'76%', nps:'+68', learners:28},
+    quotes:['很久沒有這麼放鬆了','和同事一起畫畫很開心','壓力真的有緩解'],
+    actions:'呼吸練習 60%｜塗鴉 45%｜感謝同事 30%',
+    next:['下載「家庭挑戰包」','老師優化教學清晰度（平均 4.3/5）','企業導入季度方案']
+  },
+  pro:{
+    kpi:{sessions:8, learners:172, avgDelta:'+0.85', avgNPS:'+65'},
+    depts:{
+      admin:[1.1,1.2,1.0,0.8],
+      sales:[0.6,0.7,0.5,0.6],
+      rd:[0.9,1.0,0.8,0.7],
+      hot:{admin:'呼吸練習',sales:'感恩挑戰',rd:'園藝挑戰'}
+    },
+    suggestions:['強化業務部：專注力模組','持續推廣園藝挑戰包（高轉化）']
+  },
+  ent:{
+    kpi:{total:30, learners:560, avgDelta:'+0.92', npsYear:'+70'},
+    radar:{year:[0.9,1.2,1.0,0.7], norm:[0.7,0.9,0.8,0.6], npsCompany:70, npsIndustry:58},
+    roi:'78% 員工壓力復原顯著改善；42% 把練習帶進團隊文化，形成可持續的療癒飛輪。',
+    plan:['續約年度療癒方案（12 場）','新增「專注力進階課程」','國際據點可複製導入']
+  },
+  exports:{}
 };
 
 /* ---------- 指標 → 情緒 ---------- */
+function indicatorsForCurrent(){
+  if(state.tab==='lite') return state.lite.deltas;
+  if(state.tab==='pro'){
+    const {admin,sales,rd}=state.pro.depts;
+    const mean = (a,b,c)=>({stable:avg([a[0],b[0],c[0]]),res:avg([a[1],b[1],c[1]]),social:avg([a[2],b[2],c[2]]),focus:avg([a[3],b[3],c[3]])});
+    return mean(admin,sales,rd);
+  }
+  // ent
+  const y = state.ent.radar.year;
+  return {stable:y[0],res:y[1],social:y[2],focus:y[3]};
+}
 function indicatorsToPlutchik(ind){
-  const {stable,res,social,focus}=ind;
   const c=v=>Math.max(0,Math.min(1.5,v));
-  return {"Joy(快樂)":(social+res)/2,"Trust(信任)":social,"Fear(恐懼)":c(1.5-stable),"Surprise(驚訝)":0.5+(focus/2),
-          "Sadness(悲傷)":c(1.5-res),"Disgust(厭惡)":c(1.5-social),"Anger(憤怒)":c(1.5-focus),"Anticipation(期待)":(focus+stable)/2};
+  return {
+    "Joy(快樂)": (ind.social + ind.res)/2,
+    "Trust(信任)": ind.social,
+    "Fear(恐懼)": c(1.5 - ind.stable),
+    "Surprise(驚訝)": 0.5 + (ind.focus/2),
+    "Sadness(悲傷)": c(1.5 - ind.res),
+    "Disgust(厭惡)": c(1.5 - ind.social),
+    "Anger(憤怒)": c(1.5 - ind.focus),
+    "Anticipation(期待)": (ind.focus + ind.stable)/2
+  };
 }
 
 /* ---------- 雷達圖 ---------- */
@@ -321,7 +440,7 @@ function drawRadar(canvas, labels, datasets, options={}){
       const w=Math.round(cssW*scale), h=Math.round(cssH*scale);
       const tmp=document.createElement('canvas'); tmp.width=w; tmp.height=h;
       const c=tmp.getContext('2d'); c.scale(scale,scale);
-      drawRadar(tmp,labels,datasets,{...options,forceDPR:1,fontPx:fontPx+Math.round(scale)});
+      drawRadar(tmp,labels,datasets,{...options,forceDPR:1,fontPx:(options.fontPx||state.radarFontPx)+Math.round(scale)});
       return tmp.toDataURL('image/png');
     }
   };
@@ -332,78 +451,125 @@ function kpiHTML(items){return items.map(x=>`<div class="kpi"><div class="v">${x
 function legendHTML(ds){return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join("")}
 
 function render(){
+  // 標題區
   const t=$("#title"), st=$("#subtitle"), kpis=$("#kpis"), tbl=$("#tbl"), tt=$("#tbl_title");
+
   if(state.tab==='lite'){
     t.textContent="Lite 成效報告"; st.textContent="單場即時｜課前 vs 課後 Δ";
-    kpis.innerHTML=kpiHTML([{l:"平均 Δ",v:avg(Object.values(state.indicators)).toFixed(2)},{l:"72h 維持率",v:"76%"},{l:"NPS",v:"+68"},{l:"學員數",v:"28"}]);
+    const d=state.lite.deltas;
+    kpis.innerHTML=kpiHTML([
+      {l:"平均 Δ",v:avg([d.stable,d.res,d.social,d.focus]).toFixed(2)},
+      {l:"72h 維持率",v:state.lite.kpi.hold},
+      {l:"NPS",v:state.lite.kpi.nps},
+      {l:"學員數",v:String(state.lite.kpi.learners)}
+    ]);
     tt.textContent="Lite｜重點表";
+    const quotes = state.lite.quotes.length? state.lite.quotes.map(s=>`「${s}」`).join('、') : '（尚未填寫）';
+    const next = state.lite.next.length? state.lite.next.join('；') : '（尚未填寫）';
     tbl.innerHTML=`<tr><th>項目</th><th>內容</th></tr>
-      <tr><td>學員一句話</td><td class="muted">${fmtQuotes(state.extra.quotes).join("、")||"（尚未填寫）"}</td></tr>
-      <tr><td>行動採納（72h）</td><td class="muted">呼吸練習 60%｜塗鴉 45%｜感謝同事 30%</td></tr>
-      <tr><td>下一步建議</td><td class="muted">${fmtSuggestions(state.extra.suggestions).join("；")||"（尚未填寫）"}</td></tr>`;
-  }else if(state.tab==='pro'){
+      <tr><td>學員一句話</td><td class="muted">${quotes}</td></tr>
+      <tr><td>行動採納（72h）</td><td class="muted">${state.lite.actions||'（尚未填寫）'}</td></tr>
+      <tr><td>下一步建議</td><td class="muted">${next}</td></tr>`;
+  }
+  else if(state.tab==='pro'){
     t.textContent="Pro 季度報告"; st.textContent="季度趨勢｜部門比較";
-    kpis.innerHTML=kpiHTML([{l:"場次",v:"8"},{l:"學員數",v:"172"},{l:"平均 Δ",v:"+0.85"},{l:"平均 NPS",v:"+65"}]);
-    tt.textContent="Pro｜部門比較（示例）";
+    kpis.innerHTML=kpiHTML([
+      {l:"場次",v:String(state.pro.kpi.sessions)},
+      {l:"學員數",v:String(state.pro.kpi.learners)},
+      {l:"平均 Δ",v:state.pro.kpi.avgDelta},
+      {l:"平均 NPS",v:state.pro.kpi.avgNPS}
+    ]);
+    tt.textContent="Pro｜部門比較";
+    const d=state.pro.depts, avgDelta = (arr)=>'+'+avg(arr).toFixed(1);
     tbl.innerHTML=`<tr><th>部門</th><th>平均 Δ</th><th>熱門行動</th></tr>
-      <tr><td>行政部</td><td>+1.1</td><td>呼吸練習</td></tr>
-      <tr><td>業務部</td><td>+0.6</td><td>感恩挑戰</td></tr>
-      <tr><td>研發部</td><td>+0.9</td><td>園藝挑戰</td></tr>
-      <tr><td colspan="3" class="muted">建議處方：${fmtSuggestions(state.extra.suggestions).join("；")||"（尚未填寫）"}。 老師滿意度平均：${(+state.extra.teacherSat||0).toFixed(1)} / 5</td></tr>`;
-  }else{
+      <tr><td>行政部</td><td>${avgDelta(d.admin)}</td><td>${d.hot.admin}</td></tr>
+      <tr><td>業務部</td><td>${avgDelta(d.sales)}</td><td>${d.hot.sales}</td></tr>
+      <tr><td>研發部</td><td>${avgDelta(d.rd)}</td><td>${d.hot.rd}</td></tr>
+      <tr><td colspan="3" class="muted">建議處方：${state.pro.suggestions.join('；')}</td></tr>`;
+  }
+  else{
     t.textContent="Enterprise 年度報告"; st.textContent="年度總結｜常模對照｜ROI 故事";
-    kpis.innerHTML=kpiHTML([{l:"總場次",v:"30"},{l:"學員數",v:"560"},{l:"平均 Δ",v:"+0.92"},{l:"NPS 年均",v:"+70"}]);
-    tt.textContent="Enterprise｜產業常模對照（示例）";
+    kpis.innerHTML=kpiHTML([
+      {l:"總場次",v:String(state.ent.kpi.total)},
+      {l:"學員數",v:String(state.ent.kpi.learners)},
+      {l:"平均 Δ",v:state.ent.kpi.avgDelta},
+      {l:"NPS 年均",v:state.ent.kpi.npsYear}
+    ]);
+    tt.textContent="Enterprise｜產業常模對照";
+    const y=state.ent.radar.year, n=state.ent.radar.norm;
+    const diff=(a,b)=>((a-b)>=0?'+':'')+(a-b).toFixed(1);
     tbl.innerHTML=`<tr><th>指標</th><th>本公司</th><th>產業常模</th><th>差異</th></tr>
-      <tr><td>NPS</td><td>70</td><td>58</td><td>+12</td></tr>
-      <tr><td>穩定度 Δ</td><td>+0.9</td><td>+0.7</td><td>+0.2</td></tr>
-      <tr><td>壓力復原 Δ</td><td>+1.2</td><td>+0.9</td><td>+0.3</td></tr>
-      <tr><td>社會連結 Δ</td><td>+1.0</td><td>+0.8</td><td>+0.2</td></tr>
-      <tr><td>專注力 Δ</td><td>+0.7</td><td>+0.6</td><td>+0.1</td></tr>
-      <tr><td colspan="4" class="muted">老師滿意度平均：${(+state.extra.teacherSat||0).toFixed(1)} / 5；建議處方：${fmtSuggestions(state.extra.suggestions).join("；")||"（尚未填寫）"}。</td></tr>`;
+      <tr><td>NPS</td><td>${state.ent.radar.npsCompany}</td><td>${state.ent.radar.npsIndustry}</td><td>${state.ent.radar.npsCompany-state.ent.radar.npsIndustry>=0?'+':''}${(state.ent.radar.npsCompany-state.ent.radar.npsIndustry).toFixed(0)}</td></tr>
+      <tr><td>穩定度 Δ</td><td>+${y[0]}</td><td>+${n[0]}</td><td>${diff(y[0],n[0])}</td></tr>
+      <tr><td>壓力復原 Δ</td><td>+${y[1]}</td><td>+${n[1]}</td><td>${diff(y[1],n[1])}</td></tr>
+      <tr><td>社會連結 Δ</td><td>+${y[2]}</td><td>+${n[2]}</td><td>${diff(y[2],n[2])}</td></tr>
+      <tr><td>專注力 Δ</td><td>+${y[3]}</td><td>+${n[3]}</td><td>${diff(y[3],n[3])}</td></tr>`;
   }
 
   // 雷達①
   const labels1=["穩定度","壓力復原","社會連結","專注力"];
-  const v=state.indicators;
-  const dsLite=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];
-  const dsPro=[{label:"行政部",color:"#59d1c5",values:[1.1,1.2,1.0,0.8],fill:.16},{label:"業務部",color:"#ffa07a",values:[0.6,0.7,0.5,0.6],fill:.10},{label:"研發部",color:"#7aa6ff",values:[0.9,1.0,0.8,0.7],fill:.10}];
-  const dsEnt=[{label:"本年度均值",color:"#59d1c5",values:[0.9,1.2,1.0,0.7],fill:.18},{label:"產業常模",color:"#7aa6ff",values:[0.7,0.9,0.8,0.6],fill:.10}];
-  const ds1 = state.tab==='lite'?dsLite: state.tab==='pro'?dsPro: dsEnt;
+  let ds1=[];
+  if(state.tab==='lite'){
+    const v=state.lite.deltas;
+    ds1=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];
+  }else if(state.tab==='pro'){
+    const d=state.pro.depts;
+    ds1=[
+      {label:"行政部", color:"#59d1c5", values:d.admin, fill:.16},
+      {label:"業務部", color:"#ffa07a", values:d.sales, fill:.10},
+      {label:"研發部", color:"#7aa6ff", values:d.rd,    fill:.10}
+    ];
+  }else{
+    const r=state.ent.radar;
+    ds1=[
+      {label:"本年度均值", color:"#59d1c5", values:r.year, fill:.18},
+      {label:"產業常模",   color:"#7aa6ff", values:r.norm, fill:.10}
+    ];
+  }
   state.exports.radar1=drawRadar($("#radar1"),labels1,ds1,{rings:4,fontPx:state.radarFontPx,padding:70});
   $("#legend1").innerHTML=legendHTML(ds1);
 
-  // 雷達②
-  const em=indicatorsToPlutchik(v), labels2=Object.keys(em);
+  // 雷達②（情緒，依該分頁的指標）
+  const ind=indicatorsForCurrent();
+  const em=indicatorsToPlutchik(ind), labels2=Object.keys(em);
   const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
   state.exports.radar2=drawRadar($("#radar2"),labels2,ds2,{rings:4,fontPx:state.radarFontPx,padding:80});
   $("#legend2").innerHTML=legendHTML(ds2);
 }
 
-function fmtSuggestions(txt){
-  return (txt||'').split(/\n|；|;|,/).map(s=>s.trim()).filter(Boolean);
+/* ---------- 事件：面板切換與套用 ---------- */
+function showPanel(){
+  $$('.panel').forEach(p=>p.classList.remove('active'));
+  $('#panel-'+(state.tab==='ent'?'ent':state.tab)).classList.add('active');
 }
-function fmtQuotes(txt){
-  return (txt||'').split(/\n|,|，/).map(s=>s.trim()).filter(Boolean);
-}
-
-/* ---------- 事件 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
   $("#rdate").value = new Date().toISOString().slice(0,10);
 
   $$('.tab').forEach(btn=>{
-    btn.addEventListener('click', ()=>{ $$('.tab').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); state.tab=btn.dataset.tab; render(); });
+    btn.addEventListener('click', ()=>{
+      $$('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.tab=btn.dataset.tab;
+      showPanel(); render();
+    });
   });
 
-  $("#btnUpdate").addEventListener('click', ()=>{
-    state.indicators.stable=parseFloat($("#v_stable").value||0);
-    state.indicators.res   =parseFloat($("#v_res").value||0);
-    state.indicators.social=parseFloat($("#v_social").value||0);
-    state.indicators.focus =parseFloat($("#v_focus").value||0);
+  $("#btnUpdate").addEventListener('click', ()=>{ // 依目前分頁更新
+    if(state.tab==='lite'){
+      state.lite.deltas.stable=parseFloat($("#lite_stable").value||0);
+      state.lite.deltas.res   =parseFloat($("#lite_res").value||0);
+      state.lite.deltas.social=parseFloat($("#lite_social").value||0);
+      state.lite.deltas.focus =parseFloat($("#lite_focus").value||0);
+    }else if(state.tab==='pro'){
+      state.pro.depts.admin = parseFour($("#pro_admin").value, state.pro.depts.admin);
+      state.pro.depts.sales = parseFour($("#pro_sales").value, state.pro.depts.sales);
+      state.pro.depts.rd    = parseFour($("#pro_rd").value,    state.pro.depts.rd);
+    }else{
+      state.ent.radar.year = parseFour($("#ent_year").value, state.ent.radar.year);
+      state.ent.radar.norm = parseFour($("#ent_norm").value, state.ent.radar.norm);
+    }
     render();
   });
-
-  $("#btnFontApply").addEventListener('click', ()=>{ state.radarFontPx=clamp(parseInt($("#fontPx").value||16,10),10,28); render(); });
 
   $("#btnApplyBrand").addEventListener('click', ()=>{
     state.brand.company=$("#company").value||state.brand.company;
@@ -411,23 +577,68 @@ document.addEventListener('DOMContentLoaded', ()=>{
     state.brand.date=$("#rdate").value||'';
     state.brand.logoUrl=$("#logoUrl").value||'';
     state.brand.color=$("#brandColor").value||state.brand.color;
-    state.extra.teacherSat=parseFloat($("#teacherSat").value||state.extra.teacherSat);
-    state.extra.suggestions=$("#suggestions").value||'';
-    state.extra.quotes=$("#quotes").value||'';
+    state.brand.contact=$("#contactEmail").value||state.brand.contact;
+    state.radarFontPx=clamp(parseInt($("#fontPx").value||16,10),10,28);
     document.documentElement.style.setProperty('--brand', state.brand.color);
     $("#brandName").textContent=state.brand.company;
     $("#footBrand").textContent=state.brand.company;
+
+    // 也順手讀各分頁主要欄位（不用再按分頁的套用）
+    // Lite
+    state.lite.deltas.stable=parseFloat($("#lite_stable").value||state.lite.deltas.stable);
+    state.lite.deltas.res   =parseFloat($("#lite_res").value||state.lite.deltas.res);
+    state.lite.deltas.social=parseFloat($("#lite_social").value||state.lite.deltas.social);
+    state.lite.deltas.focus =parseFloat($("#lite_focus").value||state.lite.deltas.focus);
+    state.lite.kpi.hold=$("#lite_hold").value||state.lite.kpi.hold;
+    state.lite.kpi.nps=$("#lite_nps").value||state.lite.kpi.nps;
+    state.lite.kpi.learners=parseInt($("#lite_learners").value||state.lite.kpi.learners,10);
+    state.lite.quotes=parseList($("#lite_quotes").value);
+    state.lite.actions=$("#lite_actions").value||state.lite.actions;
+    state.lite.next=parseList($("#lite_next").value);
+
+    // Pro
+    state.pro.kpi.sessions=parseInt($("#pro_sessions").value||state.pro.kpi.sessions,10);
+    state.pro.kpi.learners=parseInt($("#pro_learners").value||state.pro.kpi.learners,10);
+    state.pro.kpi.avgDelta=$("#pro_avgDelta").value||state.pro.kpi.avgDelta;
+    state.pro.kpi.avgNPS=$("#pro_avgNPS").value||state.pro.kpi.avgNPS;
+    state.pro.depts.admin = parseFour($("#pro_admin").value, state.pro.depts.admin);
+    state.pro.depts.sales = parseFour($("#pro_sales").value, state.pro.depts.sales);
+    state.pro.depts.rd    = parseFour($("#pro_rd").value,    state.pro.depts.rd);
+    state.pro.depts.hot.admin=$("#pro_hot_admin").value||state.pro.depts.hot.admin;
+    state.pro.depts.hot.sales=$("#pro_hot_sales").value||state.pro.depts.hot.sales;
+    state.pro.depts.hot.rd   =$("#pro_hot_rd").value||state.pro.depts.hot.rd;
+    state.pro.suggestions = parseList($("#pro_suggestions").value);
+
+    // Enterprise
+    state.ent.kpi.total=parseInt($("#ent_total").value||state.ent.kpi.total,10);
+    state.ent.kpi.learners=parseInt($("#ent_learners").value||state.ent.kpi.learners,10);
+    state.ent.kpi.avgDelta=$("#ent_avgDelta").value||state.ent.kpi.avgDelta;
+    state.ent.kpi.npsYear=$("#ent_npsYear").value||state.ent.kpi.npsYear;
+    state.ent.radar.year = parseFour($("#ent_year").value, state.ent.radar.year);
+    state.ent.radar.norm = parseFour($("#ent_norm").value, state.ent.radar.norm);
+    state.ent.radar.npsCompany=parseFloat($("#ent_nps_company").value||state.ent.radar.npsCompany);
+    state.ent.radar.npsIndustry=parseFloat($("#ent_nps_industry").value||state.ent.radar.npsIndustry);
+    state.ent.roi = $("#ent_roi").value||state.ent.roi;
+    state.ent.plan = parseList($("#ent_plan").value);
+
     render();
   });
 
-  $("#btnTheme").addEventListener('click', ()=>{ document.documentElement.style.filter=(document.documentElement.style.filter==='invert(1) hue-rotate(180deg)')?'':'invert(1) hue-rotate(180deg)'; });
+  $("#btnLiteApply").addEventListener('click', ()=>$("#btnApplyBrand").click());
+  $("#btnProApply").addEventListener('click', ()=>$("#btnApplyBrand").click());
+  $("#btnEntApply").addEventListener('click', ()=>$("#btnApplyBrand").click());
 
   $("#btnPrint").addEventListener('click', preparePrintAndOpen);
 
-  render();
+  showPanel(); render();
 });
 
 /* ---------- 列印（PDF） ---------- */
+function legendHTMLFrom(node){
+  if(!node) return '';
+  return Array.from(node.querySelectorAll('span')).map(s=>s.outerHTML).join('');
+}
+
 function preparePrintAndOpen(){
   const wrap=$('.print-container'); wrap.style.display='block';
 
@@ -447,30 +658,63 @@ function preparePrintAndOpen(){
   $("#footLeft2").textContent = location.href;
   $("#footLeft3").textContent = location.href;
 
-  // 老師滿意度提示
-  $("#pteachersat").textContent = `老師滿意度平均：${(+state.extra.teacherSat||0).toFixed(1)} / 5`;
-
-  // Logo / 主色 SVG 二選一
+  // Logo / 主色
   const logo=$("#plogo"), svg=$("#pcolorSVG");
   if(state.brand.logoUrl){ logo.src=state.brand.logoUrl; logo.style.display='block'; svg.style.display='none'; }
   else{ logo.style.display='none'; svg.style.display='block';
         const g=svg.querySelector('#brandGrad'); g.firstElementChild.setAttribute('stop-color', state.brand.color); }
 
   // 封面 KPI
-  $("#pkpis").innerHTML = $("#kpis").innerHTML;
+  if(state.tab==='lite'){
+    const d=state.lite.deltas;
+    $("#pkpis").innerHTML = kpiHTML([
+      {l:"平均 Δ",v:avg([d.stable,d.res,d.social,d.focus]).toFixed(2)},
+      {l:"72h 維持率",v:state.lite.kpi.hold},
+      {l:"NPS",v:state.lite.kpi.nps},
+      {l:"學員數",v:String(state.lite.kpi.learners)}
+    ]);
+  }else if(state.tab==='pro'){
+    $("#pkpis").innerHTML = kpiHTML([
+      {l:"場次",v:String(state.pro.kpi.sessions)},
+      {l:"學員數",v:String(state.pro.kpi.learners)},
+      {l:"平均 Δ",v:state.pro.kpi.avgDelta},
+      {l:"平均 NPS",v:state.pro.kpi.avgNPS}
+    ]);
+  }else{
+    $("#pkpis").innerHTML = kpiHTML([
+      {l:"總場次",v:String(state.ent.kpi.total)},
+      {l:"學員數",v:String(state.ent.kpi.learners)},
+      {l:"平均 Δ",v:state.ent.kpi.avgDelta},
+      {l:"NPS 年均",v:state.ent.kpi.npsYear}
+    ]);
+  }
 
-  // 建議處方 & 學員語錄
-  const sug=fmtSuggestions(state.extra.suggestions);
-  $("#psuggest").innerHTML = sug.length? `<ul style="margin:0;padding-left:5mm">${sug.map(s=>`<li>${s}</li>`).join('')}</ul>` : '（尚未填寫）';
-  const q=fmtQuotes(state.extra.quotes);
-  $("#pquotes").innerHTML = q.length? `<ul style="margin:0;padding-left:5mm">${q.map(s=>`<li>「${s}」</li>`).join('')}</ul>` : '（尚未填寫）';
+  // 建議 / 語錄 / ROI / 年度建議
+  const sugHTML = (arr)=> arr.length? `<ul style="margin:0;padding-left:5mm">${arr.map(s=>`<li>${s}</li>`).join('')}</ul>`:'（尚未填寫）';
+  if(state.tab==='lite'){
+    $("#psuggest").innerHTML = sugHTML(state.lite.next);
+    $("#pquotes").innerHTML = state.lite.quotes.length? `<ul style="margin:0;padding-left:5mm">${state.lite.quotes.map(s=>`<li>「${s}」</li>`).join('')}</ul>`:'（尚未填寫）';
+    $("#pquoteTitle").style.display='block'; $("#pquotes").style.display='block';
+    $("#proiTitle").style.display='none'; $("#proi").style.display='none';
+    $("#pplanTitle").style.display='none'; $("#pplan").style.display='none';
+  }else if(state.tab==='pro'){
+    $("#psuggest").innerHTML = sugHTML(state.pro.suggestions);
+    $("#pquoteTitle").style.display='none'; $("#pquotes").style.display='none';
+    $("#proiTitle").style.display='none'; $("#proi").style.display='none';
+    $("#pplanTitle").style.display='none'; $("#pplan").style.display='none';
+  }else{
+    $("#psuggest").innerHTML = sugHTML(state.ent.plan);
+    $("#pquoteTitle").style.display='none'; $("#pquotes").style.display='none';
+    $("#proiTitle").style.display='block'; $("#proi").style.display='block'; $("#proi").textContent = state.ent.roi;
+    $("#pplanTitle").style.display='block'; $("#pplan").style.display='block'; $("#pplan").innerHTML = sugHTML(state.ent.plan);
+  }
 
-  // 表格
+  // 表格（複製）
   $("#ptbl_title").textContent=$("#tbl_title").textContent;
   const tblClone=$("#tbl").cloneNode(true); tblClone.style.fontSize='13px'; tblClone.style.width='100%';
   $("#ptblWrap").innerHTML=''; $("#ptblWrap").appendChild(tblClone);
 
-  // 以 PNG（固定尺寸）帶入第二頁
+  // 圖：以 PNG 置入（固定尺寸）
   const png1 = state.exports.radar1?.toPNG(2.0);
   const png2 = state.exports.radar2?.toPNG(2.0);
   $("#pl1").innerHTML = legendHTMLFrom($('#legend1'));
@@ -481,17 +725,10 @@ function preparePrintAndOpen(){
   img1.src=png1; img2.src=png2;
 
   // 列印後還原
-  const prevFilter=document.documentElement.style.filter;
-  window.onbeforeprint=()=>{ document.documentElement.style.filter=''; };
-  window.onafterprint =()=>{ wrap.style.display='none'; document.documentElement.style.filter=prevFilter; };
+  window.onafterprint =()=>{ wrap.style.display='none'; };
 }
 
-function legendHTMLFrom(node){
-  if(!node) return '';
-  return Array.from(node.querySelectorAll('span')).map(s=>s.outerHTML).join('');
-}
-
-/* ---------- 可見性修正（回到頁籤重繪） ---------- */
+/* ---------- 可見性修正 ---------- */
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ requestAnimationFrame(render); }});
 </script>
 </body>

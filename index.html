@@ -830,11 +830,6 @@ function preparePrintAndOpen(){
   const hide = ids => ids.forEach(id=>{ $(id).style.display='none'; });
   const show = ids => ids.forEach(id=>{ $(id).style.display='block'; });
 
-  if(state.tab==='lite'){
-    $("#pSugTitle").textContent='下一步建議';
-    $("#psuggest").innerHTML = listHTML(state.lite.next());
-  }
-
   // 表格 → 複製
   function listHTML(lines){ return (lines&&lines.length)? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : '（尚未填寫）'; }
   $("#ptbl_title").textContent=$("#tbl_title").textContent;

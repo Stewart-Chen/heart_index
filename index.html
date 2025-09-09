@@ -601,8 +601,8 @@ function render(){
       {l:"NPS",v:state.lite.kpi.nps},
       {l:"學員數",v:String(state.lite.kpi.learners)}
     ]);
-    tt.textContent="Lite｜重點表";
-    tbl.innerHTML=`<tr><th>項目</th><th>內容</th></tr>
+    //tt.textContent="Lite｜重點表";
+    //tbl.innerHTML=`<tr><th>項目</th><th>內容</th></tr>
       <tr><td>四指標 Δ</td><td class="muted">穩定度 ${d.stable.toFixed(1)}｜壓力復原 ${d.res.toFixed(1)}｜社會連結 ${d.social.toFixed(1)}｜專注力 ${d.focus.toFixed(1)}</td></tr>`;
     renderLiteActionsInputs();
     renderLiteRippleInputs();

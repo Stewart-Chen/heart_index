@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>心聚指標報告｜Lite / Pro / Enterprise + 雷達圖（修正版＋PDF）</title>
+<title>心聚指標報告｜Lite / Pro / Enterprise + 雷達圖（品牌面板＋PDF＋法遵）</title>
 <style>
   :root{
     --bg:#0b1320; --card:#121a2b; --muted:#9bb0d3; --text:#eaf2ff;
     --accent:#59d1c5; --accent-2:#7aa6ff; --grid:#24314d;
     --good:#4fe0b0; --warn:#ffb14a; --bad:#ff6b6b;
+    --brand:#1bb1c9; /* 會由面板覆寫 */
   }
   @media (prefers-color-scheme: light){
     :root{
@@ -28,7 +29,7 @@
     position:sticky; top:0; backdrop-filter:saturate(140%) blur(6px);
   }
   .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
-  .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1bb1c9, #52d09b);display:inline-block;position:relative}
+  .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand), #52d09b);display:inline-block;position:relative}
   .logo .mark:after{content:""; position:absolute; inset:6px; border-radius:6px; background:#fff3; backdrop-filter: blur(2px)}
   .pill{padding:8px 12px; border:1px solid #ffffff26; border-radius:999px; color:var(--muted); font-size:12px}
   .wrap{max-width:1100px;margin:0 auto;padding:0 18px 48px}
@@ -48,10 +49,10 @@
   .tbl th,.tbl td{padding:10px;border-bottom:1px solid #ffffff14}
   .muted{color:var(--muted)}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .input{display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14;min-width:120px}
+  .input{display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14;min-width:140px}
   .input label{font-size:12px;color:var(--muted)}
   .input input{padding:8px;border-radius:8px;border:1px solid #ffffff24;background:#0000;color:var(--text)}
-  .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,#1bb1c9,#52d09b); color:#0a1320;font-weight:800;border:none;cursor:pointer}
+  .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#52d09b); color:#0a1320;font-weight:800;border:none;cursor:pointer}
   .btn.secondary{background:#ffffff14;color:var(--text);border:1px solid #ffffff24}
   .btn.ghost{background:#ffffff10;color:var(--text);border:1px dashed #ffffff40}
   canvas{width:100%;height:auto;max-height:460px;display:block}
@@ -65,37 +66,47 @@
     @page{ size: A4; margin: 14mm }
     body{ background:#fff; color:#000 }
     header, #webOnly{ display:none !important }
-    main{ display:none !important }          /* ← 只印列印容器，避免重複頁 */
-    .print-container{ display:block !important }
+    /* 只保留列印容器可見 */
+    body * { visibility: hidden; }
+    .print-container, .print-container * { visibility: visible; }
+    .print-container{ position: absolute; left:0; top:0; width:100% }
     .page{ page-break-after: always; background:#fff; border:none; box-shadow:none; padding:0 }
-    .wrap{ max-width:none; padding:0 }
     .kpi{ background:#fff; border:1px solid #ddd }
-    .card{ background:#fff; border: none; box-shadow:none; padding:0 }
-    .grid{ grid-template-columns:1fr 1fr; gap:16px }
     .legend .dot{ border:1px solid #0003 }
   }
 </style>
 </head>
 <body>
+  <!-- 頁首＋控制面板 -->
   <header class="wrap" id="webOnly">
-    <div class="logo"><span class="mark"></span> 心聚坊 HeartHub Studio</div>
+    <div class="logo"><span class="mark"></span> <span id="brandName">心聚坊 HeartHub Studio</span></div>
     <span class="pill">心聚指標報告方案（Lite / Pro / Enterprise）＋ 雷達圖</span>
     <div style="flex:1"></div>
     <button class="tab active" data-tab="lite">Lite（單場）</button>
     <button class="tab" data-tab="pro">Pro（季度）</button>
     <button class="tab" data-tab="ent">Enterprise（年度）</button>
-    <div style="flex:1 1 100%;height:0"></div>
+
+    <!-- 品牌 / 報告表單 -->
+    <div style="flex-basis:100%;height:0"></div>
     <div class="row">
-      <div class="input">
-        <label>雷達標籤字級 (px)</label>
-        <input type="number" id="fontPx" value="16" min="10" max="28" step="1" />
-      </div>
-      <button class="btn secondary" id="btnFontApply">套用字級</button>
-      <button class="btn" id="btnPrint">輸出 PDF</button>
+      <div class="input"><label>公司名稱</label><input id="company" placeholder="例：心聚坊 HeartHub Studio" value="心聚坊 HeartHub Studio"></div>
+      <div class="input"><label>專案代號</label><input id="project" placeholder="例：HH-2025-Q3"></div>
+      <div class="input"><label>報告日期</label><input id="rdate" type="date"></div>
+      <div class="input"><label>Logo 圖片 URL</label><input id="logoUrl" placeholder="https://.../logo.png"></div>
+      <div class="input"><label>封面主色</label><input id="brandColor" type="color" value="#1bb1c9"></div>
+      <button class="btn" id="btnApplyBrand">套用品牌</button>
+      <button class="btn secondary" id="btnPrint">輸出 PDF</button>
       <button class="btn ghost" id="btnTheme">切換主題</button>
+    </div>
+
+    <!-- 雷達字級 -->
+    <div class="row" style="margin-top:8px">
+      <div class="input"><label>雷達標籤字級 (px)</label><input type="number" id="fontPx" value="16" min="10" max="28" step="1" /></div>
+      <button class="btn secondary" id="btnFontApply">套用字級</button>
     </div>
   </header>
 
+  <!-- 主畫面 -->
   <main class="wrap">
     <div class="grid">
       <section class="card">
@@ -119,7 +130,7 @@
         <ul class="muted" style="line-height:1.6">
           <li>左側輸入四指標 Δ，按「更新圖表」。</li>
           <li>下方兩張圖：① 指標雷達；② Plutchik 八大情緒投影。</li>
-          <li>右上可調整雷達標籤字級；按「輸出 PDF」一鍵產出正式報告。</li>
+          <li>上方面板可設定公司名稱 / Logo / 主色 / 日期 / 專案代號；「輸出 PDF」即可交付。</li>
         </ul>
         <div class="row" style="margin-top:8px">
           <span class="tag">四指標：穩定度／壓力復原／社會連結／專注力</span>
@@ -132,7 +143,6 @@
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
           <h2>雷達圖①｜心聚四指標</h2>
-          <div class="row"><button class="btn secondary" data-dl="radar1">下載 PNG</button></div>
         </div>
         <canvas id="radar1" data-role="radar"></canvas>
         <div class="legend" id="legend1"></div>
@@ -141,7 +151,6 @@
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
           <h2>雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
-          <div class="row"><button class="btn secondary" data-dl="radar2">下載 PNG</button></div>
         </div>
         <canvas id="radar2" data-role="radar"></canvas>
         <div class="legend" id="legend2"></div>
@@ -152,54 +161,82 @@
       <h2 id="tbl_title">報告重點表</h2>
       <table class="tbl" id="tbl"></table>
     </section>
-
-    <!-- 列印專用容器 -->
-    <div class="print-container" style="display:none">
-      <section class="page" id="p1" style="padding:8mm 0 4mm">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#1bb1c9, #52d09b)"></div>
-          <div style="font-weight:700">心聚坊 HeartHub Studio</div>
-        </div>
-        <h1 class="print-title">心聚指標成效報告（<span id="printTabName">Lite</span>）</h1>
-        <p class="print-sub">版本：<span id="printDate"></span></p>
-        <div class="kpis" id="pkpis" style="margin-top:10px"></div>
-      </section>
-
-      <section class="page" id="p2" style="padding:6mm 0 4mm">
-        <h2 style="margin:0 0 6px">雷達圖①｜心聚四指標</h2>
-        <canvas id="pr1" width="2480" height="1700"></canvas>
-        <div id="pl1" style="font-size:12px;margin-top:6px"></div>
-        <div style="height:8mm"></div>
-        <h2 style="margin:0 0 6px">雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
-        <canvas id="pr2" width="2480" height="1700"></canvas>
-        <div id="pl2" style="font-size:12px;margin-top:6px"></div>
-      </section>
-
-      <section class="page" id="p3" style="padding:6mm 0 4mm">
-        <h2 style="margin:0 0 8px" id="ptbl_title">報告重點表</h2>
-        <div id="ptblWrap"></div>
-        <p style="color:#444;margin-top:8mm;font-size:12px">備註：「四指標 → 情緒」映射為示範，可依實務校準。</p>
-      </section>
-    </div>
   </main>
 
-  <footer>© 心聚坊 HeartHub Studio</footer>
+  <!-- 列印專用容器（移到 main 外，避免被隱藏） -->
+  <div class="print-container" style="display:none">
+    <!-- P1 封面 -->
+    <section class="page" id="p1" style="padding:8mm 0 4mm">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+        <img id="plogo" alt="" style="width:18mm;height:18mm;object-fit:contain;border-radius:4px;display:none">
+        <div style="width:18mm;height:18mm;border-radius:5px;background:linear-gradient(135deg,var(--brand), #52d09b)" id="pcolor"></div>
+        <div style="font-weight:700" id="pcompany">心聚坊 HeartHub Studio</div>
+      </div>
+      <h1 class="print-title" style="margin:0 0 6px">心聚指標成效報告（<span id="printTabName">Lite</span>）</h1>
+      <p class="print-sub" style="margin:0 0 10px">
+        公司：<span id="pcompany2">心聚坊 HeartHub Studio</span>　
+        專案：<span id="pproject">—</span>　
+        日期：<span id="printDate"></span>
+      </p>
+      <div class="kpis" id="pkpis" style="margin-top:8px"></div>
+    </section>
+
+    <!-- P2 圖表頁 -->
+    <section class="page" id="p2" style="padding:6mm 0 4mm">
+      <h2 style="margin:0 0 6px">雷達圖①｜心聚四指標</h2>
+      <canvas id="pr1" width="2480" height="1700"></canvas>
+      <div id="pl1" style="font-size:12px;margin-top:6px"></div>
+      <div style="height:8mm"></div>
+      <h2 style="margin:0 0 6px">雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
+      <canvas id="pr2" width="2480" height="1700"></canvas>
+      <div id="pl2" style="font-size:12px;margin-top:6px"></div>
+    </section>
+
+    <!-- P3 表格 -->
+    <section class="page" id="p3" style="padding:6mm 0 4mm">
+      <h2 style="margin:0 0 8px" id="ptbl_title">報告重點表</h2>
+      <div id="ptblWrap"></div>
+    </section>
+
+    <!-- P4 法遵 -->
+    <section class="page" id="p4" style="padding:6mm 0 4mm">
+      <h2 style="margin:0 0 8px">法遵與版權聲明</h2>
+      <ol style="line-height:1.7; font-size:12.5px; color:#333">
+        <li><b>資訊安全與隱私</b>：本報告僅呈現統計性結果，不含可識別個人資訊；若涉及個資，已採去識別化處理。</li>
+        <li><b>使用範圍</b>：限於內部教育訓練與管理決策使用，未經書面同意，不得對外散布或轉載。</li>
+        <li><b>非醫療聲明</b>：本報告不構成醫療診斷、治療或心理諮商建議；如需專業協助，請洽合格專業人員。</li>
+        <li><b>資料來源</b>：數據由課程回饋與「心聚指標」自填問卷彙整，評估結果可能受樣本與情境影響。</li>
+        <li><b>智慧財產</b>：本報告之文字、圖表與版型為© <span id="pcompany3">心聚坊 HeartHub Studio</span> 所有；未經授權請勿重製。</li>
+        <li><b>聯絡窗口</b>：如需商用授權、資料更正或異議申訴，請洽：<span id="pcontact">support@example.com</span></li>
+      </ol>
+    </section>
+  </div>
+
+  <footer>© <span id="footBrand">心聚坊 HeartHub Studio</span></footer>
 
 <script>
-/* ---------- 工具 ---------- */
-const $ = (sel)=>document.querySelector(sel);
-const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+/* ---------- 小工具 ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
 function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
-function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
-function pickColor(i){ const palette=['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff']; return palette[i%palette.length]; }
-function hexToRgba(hex,a){ const h=hex.replace('#',''); const n=parseInt(h,16); const r=(n>>16)&255,g=(n>>8)&255,b=n&255; return `rgba(${r},${g},${b},${a})`; }
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length}
+function pickColor(i){const p=['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff'];return p[i%p.length];}
+function hexToRgba(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);const r=(n>>16)&255,g=(n>>8)&255,b=n&255;return `rgba(${r},${g},${b},${a})`;}
 
 /* ---------- 狀態 ---------- */
 const state = {
   tab:'lite',
   indicators:{stable:0.8, res:1.1, social:0.9, focus:0.6},
   radarFontPx:16,
-  exports:{}
+  exports:{},
+  brand:{
+    company:'心聚坊 HeartHub Studio',
+    project:'',
+    date:'',
+    logoUrl:'',
+    color:'#1bb1c9',
+    contact:'support@example.com'
+  }
 };
 
 /* ---------- 指標 → 情緒 ---------- */
@@ -217,22 +254,19 @@ function indicatorsToPlutchik(ind){
   };
 }
 
-/* ---------- 高可靠雷達圖（修正累積縮放） ---------- */
+/* ---------- 高可靠雷達圖（修正累積 scale） ---------- */
 function drawRadar(canvas, labels, datasets, options={}){
-  // 取 CSS 尺寸（避免使用舊的 width/height 屬性）
+  // 用 CSS 寬高避免舊屬性干擾
   const cssW = canvas.clientWidth || 1000;
   const cssH = canvas.clientHeight || 600;
   const dpr = options.forceDPR || window.devicePixelRatio || 1;
 
-  // 設置實體像素尺寸
   canvas.width  = Math.max(600, Math.round(cssW * dpr));
   canvas.height = Math.max(400, Math.round(cssH * dpr));
 
   const ctx = canvas.getContext('2d');
-  // 重置座標系與內容（← 關鍵：避免 scale 累積）
   ctx.setTransform(1,0,0,1,0,0);
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  // 再按 DPR 進行一次性縮放
   ctx.scale(dpr, dpr);
 
   const W = canvas.width / dpr, H = canvas.height / dpr;
@@ -240,13 +274,12 @@ function drawRadar(canvas, labels, datasets, options={}){
   const pad = options.padding ?? 60;
   const r = Math.min(W, H)/2 - pad;
 
-  // 最大值
   let maxVal = 0;
   datasets.forEach(ds => ds.values.forEach(v => { if(v>maxVal) maxVal=v; }));
   maxVal = Math.max(maxVal, options.minMax?.max ?? 1.2);
   const rings = options.rings ?? 4;
 
-  // 背景網格
+  // 背景
   ctx.save();
   ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid') || '#e5ecfa';
   ctx.lineWidth = 1;
@@ -261,7 +294,6 @@ function drawRadar(canvas, labels, datasets, options={}){
     }
     ctx.closePath(); ctx.stroke();
   }
-  // 軸＋標籤
   const fontPx = options.fontPx || 16;
   ctx.fillStyle = getComputedStyle(document.body).color || '#111';
   ctx.font = `500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
@@ -285,21 +317,17 @@ function drawRadar(canvas, labels, datasets, options={}){
       const rr = (v/maxVal) * r;
       return [cx + rr*Math.cos(ang), cy + rr*Math.sin(ang)];
     });
-
     ctx.beginPath();
     pts.forEach((p,i)=>{ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
     ctx.closePath();
     ctx.fillStyle = hexToRgba(color, alpha); ctx.fill();
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
-
-    ctx.fillStyle = color;
-    pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill(); });
+    ctx.fillStyle = color; pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill(); });
   });
 
   return {
     toPNG(scale=2){
       const tmp = document.createElement('canvas');
-      // 以當前 CSS 大小重畫高解析
       tmp.width = Math.round((canvas.clientWidth||1000) * scale);
       tmp.height= Math.round((canvas.clientHeight||600) * scale);
       const c = tmp.getContext('2d');
@@ -378,6 +406,10 @@ function render(){
 
 /* ---------- 事件 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
+  // 預設今天
+  const d = new Date();
+  $("#rdate").value = d.toISOString().slice(0,10);
+
   $$('.tab').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       $$('.tab').forEach(b=>b.classList.remove('active'));
@@ -386,6 +418,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
       render();
     });
   });
+
   $("#btnUpdate").addEventListener('click', ()=>{
     state.indicators.stable=parseFloat($("#v_stable").value||0);
     state.indicators.res   =parseFloat($("#v_res").value||0);
@@ -393,38 +426,64 @@ document.addEventListener('DOMContentLoaded', ()=>{
     state.indicators.focus =parseFloat($("#v_focus").value||0);
     render();
   });
+
   $("#btnFontApply").addEventListener('click', ()=>{
     state.radarFontPx = clamp(parseInt($("#fontPx").value||16,10),10,28);
     render();
   });
+
   $("#btnTheme").addEventListener('click', ()=>{
     document.documentElement.style.filter =
       (document.documentElement.style.filter==='invert(1) hue-rotate(180deg)') ? '' : 'invert(1) hue-rotate(180deg)';
   });
-  document.querySelectorAll('[data-dl]').forEach(b=>{
-    b.addEventListener('click', ()=>{
-      const key=b.getAttribute('data-dl');
-      const url=state.exports[key].toPNG(2);
-      const a=document.createElement('a'); a.href=url; a.download=key+'.png'; a.click();
-    });
+
+  $("#btnApplyBrand").addEventListener('click', ()=>{
+    state.brand.company = $("#company").value || state.brand.company;
+    state.brand.project = $("#project").value || '';
+    state.brand.date    = $("#rdate").value || '';
+    state.brand.logoUrl = $("#logoUrl").value || '';
+    state.brand.color   = $("#brandColor").value || state.brand.color;
+    document.documentElement.style.setProperty('--brand', state.brand.color);
+    $("#brandName").textContent = state.brand.company;
+    $("#footBrand").textContent = state.brand.company;
   });
+
   $("#btnPrint").addEventListener('click', preparePrintAndOpen);
+
   render();
 });
 
 /* ---------- 列印（PDF） ---------- */
 function preparePrintAndOpen(){
+  // 填入封面品牌資料
   const wrap=document.querySelector('.print-container');
   wrap.style.display='block';
 
   $("#printTabName").textContent = state.tab==='lite'?'Lite（單場）': state.tab==='pro'?'Pro（季度）':'Enterprise（年度）';
-  $("#printDate").textContent = new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
+  const dateText = state.brand.date || new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
+  $("#printDate").textContent = dateText;
+  $("#pcompany").textContent = state.brand.company;
+  $("#pcompany2").textContent = state.brand.company;
+  $("#pcompany3").textContent = state.brand.company;
+  $("#pproject").textContent = state.brand.project || '—';
+  $("#pcontact").textContent = state.brand.contact;
+  document.documentElement.style.setProperty('--brand', state.brand.color);
+
+  const logo = $("#plogo");
+  if(state.brand.logoUrl){
+    logo.src = state.brand.logoUrl;
+    logo.style.display = 'block';
+  }else{
+    logo.style.display = 'none';
+  }
+
+  // 封面 KPI
   $("#pkpis").innerHTML = $("#kpis").innerHTML;
 
+  // 高解析重畫兩張圖
   const pr1=$("#pr1"), pr2=$("#pr2");
   const fontPx=Math.max(18, state.radarFontPx+2);
 
-  // 同步資料（避免重覆疊加）
   const labels1=["穩定度","壓力復原","社會連結","專注力"];
   const v=state.indicators;
   const dsLite=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];

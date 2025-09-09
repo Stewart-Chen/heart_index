@@ -575,10 +575,8 @@ function drawRadar(canvas, labels, datasets, options={}){
         ctx.textAlign=Math.cos(p.ang)>0.2?"left":(Math.cos(p.ang)<-0.2?"right":"center");
         ctx.textBaseline=Math.sin(p.ang)>0.2?"top":(Math.sin(p.ang)<-0.2?"bottom":"middle");
 
-        ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(0,0,0,.6)';
-        ctx.strokeText(text, tx, ty);
-        ctx.fillStyle = '#ffffff';
+        const labelColor = options.valueColor || '#0c1b34'; // 深色字（可改成你要的色碼）
+        ctx.fillStyle = labelColor;
         ctx.fillText(text, tx, ty);
       });
       ctx.restore();

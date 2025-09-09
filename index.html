@@ -565,9 +565,9 @@ function drawRadar(canvas, labels, datasets, options={}){
         ctx.textBaseline=Math.sin(p.ang)>0.2?"top":(Math.sin(p.ang)<-0.2?"bottom":"middle");
 
         ctx.lineWidth = 3;
-        ctx.strokeStyle = 'rgba(0,0,0,.45)';
+        ctx.strokeStyle = 'rgba(0,0,0,.6)';
         ctx.strokeText(text, tx, ty);
-        ctx.fillStyle = color;
+        ctx.fillStyle = '#ffffff';
         ctx.fillText(text, tx, ty);
       });
       ctx.restore();

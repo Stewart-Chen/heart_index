@@ -114,6 +114,12 @@
 
     /* 列印下的長條圖對比更清楚 */
     .barlist{--track:#f2f5ff; --track-b:#dfe6fb; --fill1:var(--brand); --fill2:#36c6b4}
+    
+    #p1 .cover-brand{ margin:12mm 0 10mm !important; } /* 明顯下移主標 */
+    #p1 .ptitle{ font-size:24px; margin:6mm 0 4mm !important; }
+    #p1 .psub{ font-size:12px; color:#666; margin:0 0 8mm !important; }
+    /* KPI 區塊與上方留點距離，避免擠在一起 */
+    #p1 .kpis.print{ margin-top: 2mm; }
   }
 </style>
 </head>
@@ -284,9 +290,10 @@
     <!-- P1 封面 + KPI -->
     <section class="page" id="p1">
       <div class="ph"><span id="phLeft"></span><span>心聚指標報告（Lite / Pro / Enterprise）</span><span id="phRight"></span></div>
-      <div style="display:flex;align-items:center;gap:6mm;margin:6mm 0 4mm">
+      <div class="cover-brand">
         <img id="plogo" alt="" style="width:20mm;height:20mm;object-fit:contain;border-radius:4px;display:none">
         <!-- 沒 Logo → SVG 主色塊（列印也顯色） -->
+        
         <svg id="pcolorSVG" width="20mm" height="20mm" viewBox="0 0 100 100" style="border-radius:6px;display:none">
           <defs><linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stop-color="var(--brand)"/><stop offset="100%" stop-color="#52d09b"/></linearGradient></defs>

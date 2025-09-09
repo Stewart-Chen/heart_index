@@ -178,6 +178,47 @@
 
   /* 頂部細節列稍薄，釋放內容高度 */
   #p1 .ph{ padding:1.6mm 0 }
+
+
+  /* 保守一點的頁面內距（少 1mm，釋出高度） */
+  .page{ padding:0 var(--page-pad-x) calc(var(--footer-reserve) + 1mm) var(--page-pad-x) }
+
+  /* 封面區：不要再強制 min-height，改回自然高度 */
+  #p1 .cover-grid{
+    min-height:auto;                 /* 取消撐高 → 不會把內容擠到新頁 */
+    margin:6mm 0 4mm;                /* 縮小上下留白 */
+    column-gap:6mm; row-gap:4mm;
+    align-items:start;               /* 右欄不再被撐滿 */
+  }
+
+  /* 左欄：也取消最小高度、縮小間距 */
+  #p1 .cover-grid > div:first-child{
+    min-height:auto;
+    gap:3mm;
+    justify-content:flex-start;      /* 不再強制 space-between */
+  }
+
+  /* chip 與標題微縮，避免過高 */
+  #p1 .brand-chip{ margin-right:2.4mm; }
+  #p1 .ptitle{ font-size:26px; line-height:1.25; margin:1.5mm 0 1.5mm !important }
+  #p1 .psub{ margin:0 0 3mm !important; max-width:165mm; }
+
+  /* KPI 區塊縮小卡片高度與間距 */
+  #p1 .kpi-rail{
+    grid-template-columns:repeat(2,1fr);
+    grid-auto-rows:minmax(16mm,auto);
+    gap:3.2mm;
+    align-content:start;
+  }
+  #p1 .kpi-rail .kpi{ padding:3mm }
+  #p1 .kpi-rail .kpi .v{ font-size:17px }
+
+  /* 頁眉維持原本高度 */
+  #p1 .ph{ padding:2mm 0 }
+
+  /* 圖片輸出頁也稍微縮小，避免撞頁邊 */
+  .radarPrint{ width:178mm; height:88mm; margin:2mm 0 1mm }
+
 }
 
 

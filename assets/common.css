@@ -10,7 +10,7 @@
 body{margin:0;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans TC,Helvetica,Arial;
   background:linear-gradient(180deg, var(--bg) 0%, #0e182b 100%); color:var(--text)}
 .wrap{max-width:1160px;margin:0 auto;padding:0 18px 48px}
-header{position:sticky;top:0;padding:24px 18px;display:flex;flex-wrap:wrap;gap:16px;backdrop-filter:saturate(140%) blur(6px)}
+header{position:sticky;padding:24px 18px;display:flex;flex-wrap:wrap;gap:16px;backdrop-filter:saturate(140%) blur(6px)}
 .logo{display:flex;align-items:center;gap:10px;font-weight:700}
 .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand), #52d09b)}
 .pill{padding:8px 12px;border:1px solid #ffffff26;border-radius:999px;color:#9bb0d3;font-size:12px}

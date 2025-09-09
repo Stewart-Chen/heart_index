@@ -81,7 +81,7 @@ window.Common = (function(){
       }
       ctx.closePath(); ctx.stroke();
     }
-    const fontPx=options.fontPx||16;
+    const fontPx=options.fontPx||12;
     ctx.fillStyle=getComputedStyle(document.body).color||'#111';
     ctx.font=`500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
     labels.forEach((lab,k)=>{
@@ -103,11 +103,14 @@ window.Common = (function(){
     });
 
     return {
-      toPNG(scale=2){
-        const w=Math.round(cssW*scale), h=Math.round(cssH*scale);
-        const tmp=document.createElement('canvas'); tmp.width=w; tmp.height=h;
-        const c=tmp.getContext('2d'); c.scale(scale,scale);
-        drawRadar(tmp,labels,datasets,{...options,forceDPR:1,fontPx:(options.fontPx||16)+Math.round(scale)});
+      toPNG(scale = 2){
+        const tmp = document.createElement('canvas');
+        tmp.width  = canvas.width  * scale;
+        tmp.height = canvas.height * scale;
+        const c = tmp.getContext('2d');
+        c.imageSmoothingEnabled = true;
+        c.imageSmoothingQuality = 'high';
+        c.drawImage(canvas, 0, 0, tmp.width, tmp.height);
         return tmp.toDataURL('image/png');
       }
     };

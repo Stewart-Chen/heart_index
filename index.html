@@ -66,164 +66,121 @@
 
   footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
 
-  /* ====== 列印（PDF 美化） ====== */
-  @media print{
-    @page{ size:A4; margin:10mm }
-    body{ background:#fff; color:#000 }
-    header, #webOnly{ display:none !important }
+ /* ====== 列印（PDF 美化）— 精簡去重版 ====== */
+@media print{
+  /* —— 基本紙張與可見性 —— */
+  @page{ size:A4; margin:10mm }
+  body{ background:#fff; color:#000 }
+  header, #webOnly{ display:none !important }
 
-    body * { visibility:hidden }
-    .print-container, .print-container * { visibility:visible }
-    .print-container{ position:absolute; inset:0; width:100%; -webkit-print-color-adjust:exact; print-color-adjust:exact }
-
-    :root{
-      --page-pad-x:4mm;          /* 你原本的左右內距 */
-      --footer-reserve:12mm;     /* 為頁腳預留高度 */
-      --print-height: calc(297mm - 2 * 10mm);
-    }
-    /* 讓每個 .page 真的撐滿一整張紙的可列印高度 */
-    .page{
-      position:relative;
-      min-height: var(--print-height);
-      box-sizing: border-box;
-      padding: 0 var(--page-pad-x) calc(var(--footer-reserve) + 2mm) var(--page-pad-x);
-      background:#fff;
-    }
-    .page:not(:last-child){ page-break-after:always }
-      /* 頁腳固定貼在頁面底部 */
-    .pfooter{
-      position:absolute;
-      left:var(--page-pad-x);
-      right:var(--page-pad-x);
-      bottom:0;
-      font-size:10px; color:#888;
-      border-top:1px solid #eee;
-      padding-top:2mm; margin-top:0;
-      background:#fff;
-    }
-    .ph{ font-size:11px; color:#777; letter-spacing:.3px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e6e6e6; padding:2mm 0 }
-    .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
-    .psub{ color:#333; margin:0 0 3mm }
-    .pcard{ border:1px solid #e6e6e6; border-radius:6px; padding:3mm; background:#fff }
-    .kpis.print{ grid-template-columns:repeat(4,1fr); gap:6mm }
-    .legend .dot{ border:1px solid #0003 }
-    .section-title{ font-weight:800; margin:4mm 0 2mm; border-left:4px solid var(--brand); padding-left:3mm }
-    .small{ font-size:12.5px; color:#333; line-height:1.7 }
-
-    .radarPrint{ width:185mm; height:92mm; display:block; margin:2mm 0 1mm }
-
-    /* 列印下的長條圖對比更清楚 */
-    .barlist{--track:#f2f5ff; --track-b:#dfe6fb; --fill1:var(--brand); --fill2:#36c6b4}
-    
-    #p1{
-      --brand-ink: var(--brand, #1bb1c9);
-      --ink:#222; --mut:#666; --line:#eaeaea;
-    }
-    /* 讓封面變兩欄：左邊品牌與標題，右邊 KPI 晶片 */
-    #p1 .cover-grid{
-      display:grid; grid-template-columns: 1.2fr .8fr; gap:6mm; align-items:start;
-      margin:8mm 0 6mm;
-    }
-    @media print and (max-width: 190mm){
-      #p1 .cover-grid{ grid-template-columns:1fr; }
-    }
-  
-    /* 品牌列＋徽章 */
-    #p1 .brand-row{
-      display:flex; align-items:center; gap:4mm; margin:0 0 4mm;
-    }
-    #p1 .brand-chip{
-      display:inline-flex; align-items:center; gap:2mm;
-      padding:1.6mm 2.6mm; border:1px solid var(--line); border-radius:999px;
-      font-size:10.5px; color:#333; background:#fff;
-    }
-    #p1 .badge{
-      display:inline-block; margin-left:auto; padding:1.6mm 2.8mm;
-      border-radius:999px; font-weight:700; font-size:10.5px;
-      background: linear-gradient(135deg, var(--brand-ink), #52d09b); color:#0a1320;
-    }
-  
-    /* 主標＋副標（副標只放摘要，不再重複公司名） */
-    #p1 .ptitle{ font-size:26px; font-weight:900; margin:2mm 0 1mm!important; }
-    #p1 .psub{ font-size:12.5px; color:var(--mut); margin:0 0 6mm!important; }
-  
-    /* KPI 晶片（右欄） */
-    #p1 .kpi-rail{
-      display:grid; grid-template-columns:repeat(2, 1fr); gap:3mm;
-    }
-    #p1 .kpi-rail .kpi{
-      display:flex; flex-direction:column; gap:1mm;
-      padding:3mm; border:1px solid var(--line); border-radius:8px; background:#fff;
-    }
-    #p1 .kpi-rail .kpi .v{ font-size:18px; font-weight:800; color:#000 }
-    #p1 .kpi-rail .kpi .l{ font-size:10.5px; color:#667 }
-  
-    /* LOGO / 主色塊大小一致 */
-    #p1 .brand-logo{ width:18mm; height:18mm; object-fit:contain; border-radius:4px; }
-    #p1 #pcolorSVG{ width:18mm; height:18mm; border-radius:4px; }
-  
-    /* 頂部細節列更精簡 */
-    #p1 .ph{ color:#777; border-bottom:1px solid var(--line); padding:2mm 0 }
-
-
-    /* 讓封面主區塊吃滿可列印高度並合理分配空間 */
-    #p1 .cover-grid{
-      /* 原本就有 margin，可保留 */
-      min-height: calc(var(--print-height) - 16mm); /* 多吃一點頁面高度 */
-      align-items: stretch;                          /* 右側 KPI 也撐滿 */
-      column-gap: 8mm;
-      row-gap: 6mm;
-    }
-  
-    /* 左欄改成 flex 直向排列，利用 space-between 拉開上下距離 */
-    #p1 .cover-grid > div:first-child{
-      display:flex;
-      flex-direction:column;
-      justify-content:space-between; /* 關鍵：把上面品牌列／中間標題／下面 chips 拉開 */
-      gap:4mm;
-      /* 這個最小高度確保不是全擠在頂端，可依喜好微調 */
-      min-height: 90mm;
-    }
-  
-    /* 兩個 brand-chip（專案/日期）改成同一行，減少堆疊感 */
-    #p1 .brand-chip{
-      display:inline-flex;           /* 原本是 block，會直直往下排 */
-      margin-right:3mm;
-      margin-top:0;                  /* 避免多出額外垂直間距 */
-    }
-  
-    /* 標題區更有主副層次且不會太靠上 */
-    #p1 .ptitle{ 
-      font-size:28px;                /* 稍微放大，視覺抓焦點 */
-      line-height:1.25;
-      margin: 2mm 0 2mm !important;
-    }
-    #p1 .psub{
-      font-size:12.5px;
-      color:#555;
-      margin: 0 0 4mm !important;    /* 副標與下方 chip 保持呼吸 */
-      max-width: 170mm;              /* 副標太長時不會貼邊 */
-    }
-  
-    /* 右欄 KPI 晶片：兩欄排、間距更舒服，避免擠在右上角 */
-    #p1 .kpi-rail{
-      display:grid;
-      grid-template-columns: repeat(2, 1fr);
-      grid-auto-rows: minmax(18mm, auto); /* 每顆卡片高度一致 */
-      gap: 4mm;
-      align-content: start;
-    }
-    #p1 .kpi-rail .kpi{
-      padding: 3.2mm;
-      border-radius: 8px;
-    }
-  
-    /* 頂部細節列稍微變薄，讓可用空間更大 */
-    #p1 .ph{
-      padding: 1.6mm 0;
-    }
-     
+  body * { visibility:hidden }
+  .print-container, .print-container * { visibility:visible }
+  .print-container{
+    position:absolute; inset:0; width:100%;
+    -webkit-print-color-adjust:exact; print-color-adjust:exact;
   }
+
+  /* —— 版面變數 —— */
+  :root{
+    --page-pad-x:4mm;              /* 左右內距 */
+    --footer-reserve:12mm;         /* 頁腳預留高度 */
+    --print-height: calc(297mm - 2 * 10mm);
+  }
+
+  /* —— 頁面容器 —— */
+  .page{
+    position:relative; min-height:var(--print-height);
+    box-sizing:border-box;
+    padding:0 var(--page-pad-x) calc(var(--footer-reserve) + 2mm) var(--page-pad-x);
+    background:#fff;
+  }
+  .page:not(:last-child){ page-break-after:always }
+
+  /* —— 頁眉／頁腳 —— */
+  .ph{
+    font-size:11px; color:#777; letter-spacing:.3px;
+    display:flex; justify-content:space-between; align-items:center;
+    border-bottom:1px solid #e6e6e6; padding:2mm 0;
+  }
+  .pfooter{
+    position:absolute; left:var(--page-pad-x); right:var(--page-pad-x); bottom:0;
+    font-size:10px; color:#888; border-top:1px solid #eee;
+    padding-top:2mm; margin-top:0; background:#fff;
+  }
+
+  /* —— 共用元件 —— */
+  .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
+  .psub{ color:#333; margin:0 0 3mm }
+  .pcard{ border:1px solid #e6e6e6; border-radius:6px; padding:3mm; background:#fff }
+  .kpis.print{ grid-template-columns:repeat(4,1fr); gap:6mm }
+  .legend .dot{ border:1px solid #0003 }
+  .section-title{ font-weight:800; margin:4mm 0 2mm; border-left:4px solid var(--brand); padding-left:3mm }
+  .small{ font-size:12.5px; color:#333; line-height:1.7 }
+  .radarPrint{ width:185mm; height:92mm; display:block; margin:2mm 0 1mm }
+
+  /* 長條圖在列印提高對比 */
+  .barlist{ --track:#f2f5ff; --track-b:#dfe6fb; --fill1:var(--brand); --fill2:#36c6b4 }
+
+  /* ====== P1 封面 ====== */
+  #p1{ --brand-ink: var(--brand, #1bb1c9); --ink:#222; --mut:#666; --line:#eaeaea }
+
+  /* 兩欄封面：左品牌與標題／右 KPI 晶片；吃滿高度並加大間距 */
+  #p1 .cover-grid{
+    display:grid; grid-template-columns:1.2fr .8fr;
+    column-gap:8mm; row-gap:6mm; align-items:stretch;
+    margin:8mm 0 6mm;
+    min-height: calc(var(--print-height) - 16mm);
+  }
+  @media print and (max-width:190mm){
+    #p1 .cover-grid{ grid-template-columns:1fr }
+  }
+
+  /* 左欄用 space-between 拉開上下留白 */
+  #p1 .cover-grid > div:first-child{
+    display:flex; flex-direction:column; justify-content:space-between; gap:4mm; min-height:90mm;
+  }
+
+  /* 品牌列與徽章 */
+  #p1 .brand-row{ display:flex; align-items:center; gap:4mm; margin:0 0 4mm }
+  #p1 .brand-logo, #p1 #pcolorSVG{ width:18mm; height:18mm; border-radius:4px }
+  #p1 .brand-logo{ object-fit:contain }
+  #p1 .badge{
+    display:inline-block; margin-left:auto; padding:1.6mm 2.8mm;
+    border-radius:999px; font-weight:700; font-size:10.5px;
+    background:linear-gradient(135deg,var(--brand-ink),#52d09b); color:#0a1320;
+  }
+
+  /* 資訊 chip 排成一行、同外觀 */
+  #p1 .brand-chip{
+    display:inline-flex; align-items:center; gap:2mm; margin-right:3mm;
+    padding:1.6mm 2.6mm; border:1px solid var(--line); border-radius:999px;
+    font-size:10.5px; color:#333; background:#fff;
+  }
+
+  /* 標題與副標（封面版） */
+  #p1 .ptitle{ font-size:28px; font-weight:900; line-height:1.25; margin:2mm 0 2mm !important }
+  #p1 .psub{
+    font-size:12.5px; color:var(--mut);
+    margin:0 0 4mm !important; max-width:170mm;
+  }
+
+  /* 右欄 KPI 軌道：兩欄網格、統一卡片高度 */
+  #p1 .kpi-rail{
+    display:grid; grid-template-columns:repeat(2,1fr);
+    grid-auto-rows:minmax(18mm,auto); gap:4mm; align-content:start;
+  }
+  #p1 .kpi-rail .kpi{
+    display:flex; flex-direction:column; gap:1mm;
+    padding:3.2mm; border:1px solid var(--line); border-radius:8px; background:#fff;
+  }
+  #p1 .kpi-rail .kpi .v{ font-size:18px; font-weight:800; color:#000 }
+  #p1 .kpi-rail .kpi .l{ font-size:10.5px; color:#667 }
+
+  /* 頂部細節列稍薄，釋放內容高度 */
+  #p1 .ph{ padding:1.6mm 0 }
+}
+
+
 </style>
 </head>
 <body>

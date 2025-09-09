@@ -262,7 +262,7 @@
       </section>
     </section>
 
-    <section class="card" style="margin-top:18px">
+    <section class="card" id="summaryCard" style="margin-top:18px">
       <h2 id="tbl_title">報告重點表</h2>
       <table class="tbl" id="tbl"></table>
     </section>
@@ -591,6 +591,10 @@ function legendHTML(ds){return ds.map(d=>`<span><i class="dot" style="background
 
 function render(){
   const t=$("#title"), st=$("#subtitle"), kpis=$("#kpis"), tbl=$("#tbl"), tt=$("#tbl_title");
+  const summaryCard = $("#summaryCard");
+  
+  // Lite 隱藏; Pro/Enterprise 顯示
+  summaryCard.style.display = (state.tab === 'lite') ? 'none' : 'block';
 
   if(state.tab==='lite'){
     t.textContent="Lite 成效報告"; st.textContent="單場即時｜課前 vs 課後 Δ";
@@ -826,6 +830,19 @@ function legendHTMLFrom(node){
   return Array.from(node.querySelectorAll('span')).map(s=>s.outerHTML).join('');
 }
 function preparePrintAndOpen(){
+  // 表格 → 僅 Pro / Enterprise 複製並顯示；Lite 隱藏
+  if (state.tab === 'lite') {
+    $('#ptbl_title').style.display = 'none';
+    $('#ptblWrap').style.display = 'none';
+  } else {
+    $('#ptbl_title').style.display = 'block';
+    $('#ptblWrap').style.display = 'block';
+    $("#ptbl_title").textContent = $("#tbl_title").textContent;
+    const tblClone = $("#tbl").cloneNode(true);
+    tblClone.style.fontSize='13px'; tblClone.style.width='100%';
+    $("#ptblWrap").innerHTML=''; $("#ptblWrap").appendChild(tblClone);
+  }
+
   const wrap=$('.print-container'); wrap.style.display='block';
 
   const nowStr=new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});

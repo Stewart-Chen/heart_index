@@ -551,10 +551,13 @@ function drawRadar(canvas, labels, datasets, options={}){
 
   datasets.forEach((ds,idx)=>{
     const color=ds.color||pickColor(idx), alpha=ds.fill??0.18;
-    const pts=ds.values.map((v,k)=>{
-      const ang=(Math.PI*2/labels.length)*k - Math.PI/2;
-      const rr=(v/maxVal)*r;
-      return {x:cx+rr*Math.cos(ang), y:cy+rr*Math.sin(ang), ang};
+    const pts = ds.values.map((v, k) => {
+      const ang = (Math.PI * 2 / labels.length) * k - Math.PI / 2;
+      const rr  = (v / maxVal) * r;            // ← 把 rr 算出來
+      return { x: cx + rr * Math.cos(ang),
+               y: cy + rr * Math.sin(ang),
+               ang,
+               rr };                           // ← 存進物件
     });
 
     ctx.beginPath(); pts.forEach((p,i)=>{if(i===0)ctx.moveTo(p.x,p.y); else ctx.lineTo(p.x,p.y);}); ctx.closePath();

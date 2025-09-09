@@ -561,26 +561,30 @@ function drawRadar(canvas, labels, datasets, options={}){
     ctx.fillStyle=hexToRgba(color,alpha); ctx.fill(); ctx.strokeStyle=color; ctx.lineWidth=2; ctx.stroke();
     ctx.fillStyle=color; pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill();});
 
-    if(wantValues){
+    if (wantValues){
       ctx.save();
       ctx.font = `600 ${fontPxVal}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
+      ctx.fillStyle = options.valueColor || '#0c1b34'; // 深色字
+    
+      const threshold = options.valueAutoInwardFrom ?? 0.78; // 半徑 > 78% 就往內放
+      const off = baseOffset + idx*stepOffset;
+    
       pts.forEach((p,k)=>{
         let text = (ds.values[k]).toFixed(valPrec);
         if (valSign) text = (ds.values[k]>=0?'+':'') + text;
-
-        const off = baseOffset + idx*stepOffset;
-        const tx = p.x + off * Math.cos(p.ang);
-        const ty = p.y + off * Math.sin(p.ang);
-
-        ctx.textAlign=Math.cos(p.ang)>0.2?"left":(Math.cos(p.ang)<-0.2?"right":"center");
-        ctx.textBaseline=Math.sin(p.ang)>0.2?"top":(Math.sin(p.ang)<-0.2?"bottom":"middle");
-
-        const labelColor = options.valueColor || '#0c1b34'; // 深色字（可改成你要的色碼）
-        ctx.fillStyle = labelColor;
+    
+        // auto: 靠近外圈（>78% r）→ 往內，否則往外
+        const dir = (p.rr / r > threshold) ? -1 : 1; // -1=往中心, 1=往外
+        const tx = p.x + dir * off * Math.cos(p.ang);
+        const ty = p.y + dir * off * Math.sin(p.ang);
+    
+        ctx.textAlign = Math.cos(p.ang)>0.2 ? "left" : (Math.cos(p.ang)<-0.2 ? "right" : "center");
+        ctx.textBaseline = Math.sin(p.ang)>0.2 ? "top"  : (Math.sin(p.ang)<-0.2 ? "bottom" : "middle");
         ctx.fillText(text, tx, ty);
       });
       ctx.restore();
     }
+
   });
 
   return {

@@ -166,7 +166,63 @@
     #p1 .ph{ color:#777; border-bottom:1px solid var(--line); padding:2mm 0 }
 
 
-    
+    /* 讓封面主區塊吃滿可列印高度並合理分配空間 */
+    #p1 .cover-grid{
+      /* 原本就有 margin，可保留 */
+      min-height: calc(var(--print-height) - 16mm); /* 多吃一點頁面高度 */
+      align-items: stretch;                          /* 右側 KPI 也撐滿 */
+      column-gap: 8mm;
+      row-gap: 6mm;
+    }
+  
+    /* 左欄改成 flex 直向排列，利用 space-between 拉開上下距離 */
+    #p1 .cover-grid > div:first-child{
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between; /* 關鍵：把上面品牌列／中間標題／下面 chips 拉開 */
+      gap:4mm;
+      /* 這個最小高度確保不是全擠在頂端，可依喜好微調 */
+      min-height: 90mm;
+    }
+  
+    /* 兩個 brand-chip（專案/日期）改成同一行，減少堆疊感 */
+    #p1 .brand-chip{
+      display:inline-flex;           /* 原本是 block，會直直往下排 */
+      margin-right:3mm;
+      margin-top:0;                  /* 避免多出額外垂直間距 */
+    }
+  
+    /* 標題區更有主副層次且不會太靠上 */
+    #p1 .ptitle{ 
+      font-size:28px;                /* 稍微放大，視覺抓焦點 */
+      line-height:1.25;
+      margin: 2mm 0 2mm !important;
+    }
+    #p1 .psub{
+      font-size:12.5px;
+      color:#555;
+      margin: 0 0 4mm !important;    /* 副標與下方 chip 保持呼吸 */
+      max-width: 170mm;              /* 副標太長時不會貼邊 */
+    }
+  
+    /* 右欄 KPI 晶片：兩欄排、間距更舒服，避免擠在右上角 */
+    #p1 .kpi-rail{
+      display:grid;
+      grid-template-columns: repeat(2, 1fr);
+      grid-auto-rows: minmax(18mm, auto); /* 每顆卡片高度一致 */
+      gap: 4mm;
+      align-content: start;
+    }
+    #p1 .kpi-rail .kpi{
+      padding: 3.2mm;
+      border-radius: 8px;
+    }
+  
+    /* 頂部細節列稍微變薄，讓可用空間更大 */
+    #p1 .ph{
+      padding: 1.6mm 0;
+    }
+     
   }
 </style>
 </head>

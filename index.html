@@ -85,7 +85,15 @@
     --footer-reserve:12mm;
     --print-height: calc(297mm - 2 * 10mm);
   }
+  /* 第二張雷達圖的標題與圖表下移 */
+  #p2 #pr2img{
+    margin-top:10mm !important;  /* 原本 0，往下移 */
+  }
 
+  /* 或者調整標題和圖一起下移 */
+  #p2 .section-title:nth-of-type(2){
+    margin-top:12mm !important;  /* 標題比原本 4mm 再大一些 */
+  }
   /* 頁面容器 */
   .page{
     position:relative; min-height:var(--print-height);

@@ -962,7 +962,7 @@ function preparePrintAndOpen(){
   $("#footLeft3").textContent = location.href;
 
   // 顯示分頁徽章
-  const tabText = (state.tab==='lite') ? 'Lite' : (state.tab==='pro') ? 'Pro（季度）' : 'Enterprise（年度）';
+  const tabText = (state.tab==='lite') ? 'Lite' : (state.tab==='pro') ? 'Pro' : 'Enterprise';
   $("#pbadge").textContent = tabText;
   
   // 封面「一句話摘要」：平均 Δ / NPS / 72h 維持率 / 人數（依分頁自動取）

@@ -14,20 +14,17 @@ window.Common = (function(){
   const esc = s => (s||'').replace(/[&<>"']/g,c=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
 
   const kpiHTML = items => items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("");
-  const legendHTML = ds => ds.map(d=>`<span><i class="dot" style="background:${d.color}</i>${d.label}</span>`).join("").replace(/<\/i>/g,'"></i>'); // 修正自閉合
+  const legendHTML = ds => ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join("");
   const listHTML = lines => (lines&&lines.length)? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : '（尚未填寫）';
 
-  // 直式長條（螢幕/列印通用）
   function barsHTML(items){
     if(!items || !items.length) return '（尚未填寫）';
     let html = '<div class="barlist">';
     items.forEach(x=>{
       const p = clamp(parseInt(x.pct,10)||0,0,100);
-      html += `<div class="barrow">
-        <div class="barname">${esc(x.name||'—')}</div>
-        <div class="bartrack"><div class="barfill" style="width:${p}%"></div></div>
-        <div class="barpct">${p}%</div>
-      </div>`;
+      html += `<div class="barname">${esc(x.name||'—')}</div>
+               <div class="bartrack"><div class="barfill" style="width:${p}%"></div></div>
+               <div class="barpct">${p}%</div>`;
     });
     html += '</div>';
     return html;
@@ -81,7 +78,7 @@ window.Common = (function(){
       }
       ctx.closePath(); ctx.stroke();
     }
-    const fontPx=options.fontPx||12;
+    const fontPx=options.fontPx||16;
     ctx.fillStyle=getComputedStyle(document.body).color||'#111';
     ctx.font=`500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
     labels.forEach((lab,k)=>{
@@ -103,102 +100,61 @@ window.Common = (function(){
     });
 
     return {
-      toPNG(scale = 2){
-        const tmp = document.createElement('canvas');
-        tmp.width  = canvas.width  * scale;
-        tmp.height = canvas.height * scale;
-        const c = tmp.getContext('2d');
-        c.imageSmoothingEnabled = true;
-        c.imageSmoothingQuality = 'high';
-        c.drawImage(canvas, 0, 0, tmp.width, tmp.height);
+      toPNG(scale=2){
+        const w=Math.round(cssW*scale), h=Math.round(cssH*scale);
+        const tmp=document.createElement('canvas'); tmp.width=w; tmp.height=h;
+        const c=tmp.getContext('2d'); c.scale(scale,scale);
+        drawRadar(tmp,labels,datasets,{...options,forceDPR:1,fontPx:(options.fontPx||16)+Math.round(scale)});
         return tmp.toDataURL('image/png');
       }
     };
   }
 
-  /* ── 依模式移除會在 PDF 第三頁重複的表格列 ── */
-  function stripDuplicateRowsFromTable(tbl, mode){
-    const dropByTab = {
-      lite: ['學員一句話','行動採納（72h）','關係圈擴散','下一步建議'],
-      pro:  ['建議處方'],
-      ent:  ['ROI 故事','年度建議']
-    };
-    const drop = dropByTab[mode]||[];
-    [...tbl.querySelectorAll('tr')].forEach(tr=>{
-      const th = tr.querySelector('td,th');
-      const text = (th?.textContent||'').trim();
-      if(drop.includes(text)) tr.remove();
-    });
-    return tbl;
-  }
-
-  /* ── PDF 輸出（A：第二頁用 canvas 重畫；B：第三頁表格過濾重複列） ──
-     參數：
-       mode: 'lite' | 'pro' | 'ent'
-       brand: {company, project, date, logoUrl, color, contact}
-       kpiNodesHTML: 第一頁 KPI 的 innerHTML 字串（直接帶入）
-       tableTitle: 第三頁表格標題
-       tableHTML:  （可選）若沒傳 tableNode，可傳現成 HTML 字串
-       opts: {
-         tableNode?: HTMLTableElement   // 建議使用，才能過濾重複列
-         radar1: { labels:[], datasets:[], options?:{} }
-         radar2: { labels:[], datasets:[], options?:{} }
-         legend1HTML?: string            // 不傳就自動用 datasets 生成
-         legend2HTML?: string
-         suggestionsHTML?: string
-         quotesHTML?: string
-         actionsHTML?: string
-         rippleHTML?: string
-         roi?: string
-         planHTML?: string
-         fontPx?: number                 // 可覆寫列印雷達字級
-       }
-  */
-  function printNow(mode, brand, kpiNodesHTML, tableTitle, tableHTML, opts={}){
-    const now = new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-
+  /* ── PDF 輸出（避免重複：動態建 DOM，依 mode 顯示對應段落） ── */
+  function printNow(mode, brand, kpiNodesHTML, tableTitle, tableHTML, opts){
+    // opts: {quotes, actionsHTML, rippleHTML, suggestionsHTML, roi, planHTML, radarPNGs:[p1,p2], legends:[l1,l2]}
     const root = document.createElement('div');
     root.className='print-container';
     root.innerHTML = `
       <section class="page">
-        <div class="ph"><span>${now}</span>
+        <div class="ph"><span>${new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
           <span>心聚指標報告（Lite / Pro / Enterprise）</span><span>（正式版 PDF）</span></div>
         <div style="display:flex;align-items:center;gap:6mm;margin:6mm 0 4mm">
           ${brand.logoUrl ? `<img src="${esc(brand.logoUrl)}" style="width:20mm;height:20mm;object-fit:contain;border-radius:4px">`
             : `<svg width="20mm" height="20mm" viewBox="0 0 100 100" style="border-radius:6px"><defs>
                 <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${brand.color||'#1bb1c9'}"/><stop offset="100%" stop-color="#52d09b"/></linearGradient>
               </defs><rect x="0" y="0" width="100" height="100" rx="8" ry="8" fill="url(#g1)"/></svg>`}
-          <div><div style="font-weight:800">${esc(brand.company||'')}</div><div style="font-size:12px;color:#666">心聚指標｜成效報告</div></div>
+          <div><div style="font-weight:800">${esc(brand.company)}</div><div style="font-size:12px;color:#666">心聚指標｜成效報告</div></div>
         </div>
         <div class="ptitle">心聚指標成效報告（${mode==='lite'?'Lite（單場）':mode==='pro'?'Pro（季度）':'Enterprise（年度）'}）</div>
-        <p class="psub">公司：${esc(brand.company||'')}　專案：${esc(brand.project||'—')}　日期：${esc(brand.date||new Date().toLocaleDateString('zh-TW'))}</p>
-        <div class="kpis print">${kpiNodesHTML||''}</div>
+        <p class="psub">公司：${esc(brand.company)}　專案：${esc(brand.project||'—')}　日期：${esc(brand.date||new Date().toLocaleDateString('zh-TW'))}</p>
+        <div class="kpis print">${kpiNodesHTML}</div>
         <div class="pfooter"><span>${location.href}</span><span style="float:right">第 1 / 3 頁</span></div>
       </section>
 
       <section class="page">
-        <div class="ph"><span>${now}</span>
+        <div class="ph"><span>${new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
           <span>指標雷達 & 情緒雷達</span><span>（正式版 PDF）</span></div>
         <div class="section-title">雷達圖①｜心聚四指標</div>
-        <canvas id="pr1" class="radarPrint"></canvas>
-        <div class="small" id="pl1"></div>
+        <img class="radarPrint" src="${opts.radarPNGs[0]||''}" />
+        <div class="small">${opts.legends[0]||''}</div>
         <div class="section-title" style="margin-top:4mm">雷達圖②｜Plutchik 八大情緒（由四指標投影）</div>
-        <canvas id="pr2" class="radarPrint"></canvas>
-        <div class="small" id="pl2"></div>
+        <img class="radarPrint" src="${opts.radarPNGs[1]||''}" />
+        <div class="small">${opts.legends[1]||''}</div>
         <div class="pfooter"><span>${location.href}</span><span style="float:right">第 2 / 3 頁</span></div>
       </section>
 
       <section class="page">
-        <div class="ph"><span>${now}</span>
+        <div class="ph"><span>${new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'})}</span>
           <span>重點摘要與合規聲明</span><span>（正式版 PDF）</span></div>
-        <div class="section-title" id="ptbl_title">${esc(tableTitle||'報告重點表')}</div>
-        <div class="pcard" id="ptblWrap">${opts.tableNode? '' : (tableHTML||'')}</div>
+        <div class="section-title">${esc(tableTitle)}</div>
+        <div class="pcard">${tableHTML}</div>
 
         ${mode==='lite'?`
           <div class="section-title" style="margin-top:5mm">下一步建議</div>
           <div class="pcard small">${opts.suggestionsHTML||'（尚未填寫）'}</div>
           <div class="section-title" style="margin-top:5mm">學員一句話</div>
-          <div class="pcard small">${opts.quotesHTML||'（尚未填寫）'}</div>
+          <div class="pcard small">${opts.quotes||'（尚未填寫）'}</div>
           <div class="section-title" style="margin-top:5mm">行動採納（72h）</div>
           <div class="pcard small">${opts.actionsHTML||'（尚未填寫）'}</div>
           <div class="section-title" style="margin-top:5mm">關係圈擴散</div>
@@ -220,46 +176,16 @@ window.Common = (function(){
             <li><b>使用範圍</b>：限於內部教育訓練與管理決策使用，未經書面同意，不得對外散布或轉載。</li>
             <li><b>非醫療聲明</b>：本報告不構成醫療診斷、治療或心理諮商建議。</li>
             <li><b>資料來源</b>：數據由課程回饋與「心聚指標」自填問卷彙整，結果可能受樣本與情境影響。</li>
-            <li><b>智慧財產</b>：本報告之文字、圖表與版型為 © ${esc(brand.company||'')} 所有；未經授權請勿重製。</li>
+            <li><b>智慧財產</b>：本報告之文字、圖表與版型為 © ${esc(brand.company)} 所有；未經授權請勿重製。</li>
             <li><b>聯絡窗口</b>：${esc(brand.contact||'support@example.com')}</li>
           </ol>
         </div>
         <div class="pfooter"><span>${location.href}</span><span style="float:right">第 3 / 3 頁</span></div>
       </section>
     `;
-
     document.body.appendChild(root);
-
-    // ---- B：第三頁表格如有傳入 tableNode，這裡 clone 後做重複列清理 ----
-    if (opts.tableNode instanceof HTMLTableElement){
-      const tblClone = opts.tableNode.cloneNode(true);
-      tblClone.style.fontSize='13px';
-      tblClone.style.width='100%';
-      stripDuplicateRowsFromTable(tblClone, mode);
-      root.querySelector('#ptblWrap').innerHTML='';
-      root.querySelector('#ptblWrap').appendChild(tblClone);
-    }
-
-    // ---- A：第二頁直接在 canvas 上重畫雷達圖（避免 PNG onload 空白） ----
-    try{
-      const fontPx = Math.max(18, (opts.fontPx||16) + 2);
-      const r1opt = Object.assign({rings:4, fontPx, padding:110, forceDPR:2}, opts.radar1?.options||{});
-      const r2opt = Object.assign({rings:4, fontPx, padding:120, forceDPR:2}, opts.radar2?.options||{});
-
-      drawRadar(root.querySelector('#pr1'), opts.radar1.labels||[], opts.radar1.datasets||[], r1opt);
-      drawRadar(root.querySelector('#pr2'), opts.radar2.labels||[], opts.radar2.datasets||[], r2opt);
-
-      // 圖例：沒傳就自動用 datasets 產生
-      root.querySelector('#pl1').innerHTML = (opts.legend1HTML!=null)? opts.legend1HTML : legendHTML(opts.radar1.datasets||[]);
-      root.querySelector('#pl2').innerHTML = (opts.legend2HTML!=null)? opts.legend2HTML : legendHTML(opts.radar2.datasets||[]);
-    }catch(e){
-      console.error('Print radar draw error:', e);
-    }
-
-    // 列印結束後移除，避免重複
-    const cleanup = ()=>{ try{ root.remove(); }catch(_){} window.removeEventListener('afterprint', cleanup); };
-    window.addEventListener('afterprint', cleanup);
     window.print();
+    window.setTimeout(()=>root.remove(),100); // 列印後移除, 避免重複
   }
 
   return {

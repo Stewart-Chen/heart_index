@@ -76,17 +76,18 @@
     .print-container, .print-container * { visibility:visible }
     .print-container{ position:absolute; inset:0; width:100%; -webkit-print-color-adjust:exact; print-color-adjust:exact }
 
-    /* 讓頁腳固定在最下方：頁面容器相對定位並預留底部空間 */
     :root{
-      --page-pad-x:4mm;
-      --footer-reserve:12mm;
+      --page-pad-x:4mm;          /* 你原本的左右內距 */
+      --footer-reserve:12mm;     /* 為頁腳預留高度 */
+      --print-height: calc(297mm - 2 * 10mm);
     }
-    .page{ 
-      position:relative; 
-      background:#fff; 
-      padding:0 var(--page-pad-x) calc(var(--footer-reserve) + 2mm) var(--page-pad-x);
+    .page{
+      min-height: var(--print-height);
+      display:flex; flex-direction:column;
+      box-sizing:border-box;
+      padding: 0 var(--page-pad-x) var(--footer-reserve) var(--page-pad-x);
     }
-    .page:not(:last-child){ page-break-after:always }
+    .pfooter{ position:static; margin-top:auto; border-top:1px solid #eee; padding-top:2mm; }
     .ph{ font-size:11px; color:#777; letter-spacing:.3px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e6e6e6; padding:2mm 0 }
     .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
     .psub{ color:#333; margin:0 0 3mm }
@@ -95,10 +96,7 @@
     .legend .dot{ border:1px solid #0003 }
     .section-title{ font-weight:800; margin:4mm 0 2mm; border-left:4px solid var(--brand); padding-left:3mm }
     .small{ font-size:12.5px; color:#333; line-height:1.7 }
-    .pfooter{ 
-      position:absolute; left:var(--page-pad-x); right:var(--page-pad-x); bottom:0;
-      font-size:10px; color:#888; border-top:1px solid #eee; padding-top:2mm; margin-top:0; background:#fff;
-    }
+
     .radarPrint{ width:185mm; height:92mm; display:block; margin:2mm 0 1mm }
 
     /* 列印下的長條圖對比更清楚 */

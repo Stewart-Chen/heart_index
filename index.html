@@ -937,10 +937,10 @@ function preparePrintAndOpen(){
   $("#phLeft2").textContent=nowStr; $("#phRight2").textContent='（正式版 PDF）';
   $("#phLeft3").textContent=nowStr; $("#phRight3").textContent='（正式版 PDF）';
 
-  $("#printTabName").textContent = state.tab==='lite'?'Lite（單場）': state.tab==='pro'?'Pro（季度）':'Enterprise（年度）';
+  //$("#printTabName").textContent = state.tab==='lite'?'Lite（單場）': state.tab==='pro'?'Pro（季度）':'Enterprise（年度）';
   $("#printDate").textContent = state.brand.date||new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
   $("#pcompany").textContent = state.brand.company;
-  $("#pcompany2").textContent = state.brand.company;
+  //$("#pcompany2").textContent = state.brand.company;
   $("#pcompany3").textContent = state.brand.company;
   $("#pproject").textContent = state.brand.project || '—';
   $("#pcontact").textContent = state.brand.contact;

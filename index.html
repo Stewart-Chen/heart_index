@@ -3,29 +3,17 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>心聚指標報告方案｜Lite / Pro / Enterprise + 雷達圖</title>
+<title>心聚指標報告方案｜Lite / Pro / Enterprise + 雷達圖（含 PDF 匯出）</title>
 <style>
   :root{
-    --bg:#0b1320;
-    --card:#121a2b;
-    --muted:#9bb0d3;
-    --text:#eaf2ff;
-    --accent:#59d1c5;
-    --accent-2:#7aa6ff;
-    --grid:#24314d;
-    --good:#4fe0b0;
-    --warn:#ffb14a;
-    --bad:#ff6b6b;
+    --bg:#0b1320; --card:#121a2b; --muted:#9bb0d3; --text:#eaf2ff;
+    --accent:#59d1c5; --accent-2:#7aa6ff; --grid:#24314d;
+    --good:#4fe0b0; --warn:#ffb14a; --bad:#ff6b6b;
   }
   @media (prefers-color-scheme: light){
     :root{
-      --bg:#f6f9ff;
-      --card:#ffffff;
-      --muted:#5b6f93;
-      --text:#0c1b34;
-      --accent:#00b8a9;
-      --accent-2:#3a6cf0;
-      --grid:#e5ecfa;
+      --bg:#f6f9ff; --card:#ffffff; --muted:#5b6f93; --text:#0c1b34;
+      --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa;
     }
   }
   *{box-sizing:border-box}
@@ -36,43 +24,21 @@
     color:var(--text);
   }
   header{
-    padding:24px 18px;
-    display:flex;
-    flex-wrap:wrap;
-    align-items:center;
-    gap:16px;
+    padding:24px 18px; display:flex; flex-wrap:wrap; align-items:center; gap:16px;
+    position:sticky; top:0; backdrop-filter:saturate(140%) blur(6px);
   }
-  .logo{
-    display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;
-  }
-  .logo .mark{
-    width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1bb1c9, #52d09b);
-    display:inline-block;position:relative;
-  }
-  .logo .mark:after{
-    content:""; position:absolute; inset:6px; border-radius:6px; background:#fff3; backdrop-filter: blur(2px);
-  }
-  .pill{
-    padding:8px 12px; border:1px solid #ffffff26; border-radius:999px; color:var(--muted); font-size:12px;
-  }
-  .wrap{max-width:1100px;margin:0 auto;padding:0 18px 48px;}
-  .tabs{display:flex;gap:8px;flex-wrap:wrap}
-  .tab{
-    padding:10px 14px; border-radius:10px; background:#ffffff12; color:var(--text);
-    border:1px solid #ffffff24; cursor:pointer; user-select:none; font-weight:600;
-  }
+  .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
+  .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#1bb1c9, #52d09b);display:inline-block;position:relative}
+  .logo .mark:after{content:""; position:absolute; inset:6px; border-radius:6px; background:#fff3; backdrop-filter: blur(2px)}
+  .pill{padding:8px 12px; border:1px solid #ffffff26; border-radius:999px; color:var(--muted); font-size:12px}
+  .wrap{max-width:1100px;margin:0 auto;padding:0 18px 48px}
+  .tab{padding:10px 14px; border-radius:10px; background:#ffffff12; color:var(--text); border:1px solid #ffffff24; cursor:pointer; user-select:none; font-weight:600}
   .tab.active{background:linear-gradient(135deg,#1bb1c922, #52d09b22); border-color:#6de3c2aa}
-  .grid{
-    display:grid; gap:18px; grid-template-columns:1.2fr .8fr;
-  }
+  .grid{display:grid; gap:18px; grid-template-columns:1.2fr .8fr}
   @media (max-width:980px){.grid{grid-template-columns:1fr}}
-  .card{
-    background:var(--card); border:1px solid #ffffff14; border-radius:16px; padding:18px;
-    box-shadow: 0 10px 30px #00000025;
-  }
-  h2,h3{margin:6px 0 8px}
-  h2{font-size:20px}
-  h3{font-size:16px;color:var(--muted)}
+  .card{background:var(--card); border:1px solid #ffffff14; border-radius:16px; padding:18px; box-shadow: 0 10px 30px #00000025}
+  h1,h2,h3{margin:6px 0 8px}
+  h1{font-size:28px} h2{font-size:20px} h3{font-size:16px;color:var(--muted)}
   .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
   @media (max-width:700px){.kpis{grid-template-columns:repeat(2,1fr)}}
   .kpi{background:#ffffff0d;padding:12px;border:1px solid #ffffff14;border-radius:12px}
@@ -82,45 +48,63 @@
   .tbl th,.tbl td{padding:10px;border-bottom:1px solid #ffffff14}
   .muted{color:var(--muted)}
   .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-  .input{
-    display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14;min-width:120px
-  }
+  .input{display:flex;flex-direction:column;gap:6px;background:#ffffff0d;padding:12px;border-radius:12px;border:1px solid #ffffff14;min-width:120px}
   .input label{font-size:12px;color:var(--muted)}
   .input input{padding:8px;border-radius:8px;border:1px solid #ffffff24;background:#0000;color:var(--text)}
-  .btn{
-    padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,#1bb1c9,#52d09b);
-    color:#0a1320;font-weight:800;border:none;cursor:pointer
-  }
-  .btn.secondary{
-    background:#ffffff14;color:var(--text);border:1px solid #ffffff24
-  }
-  canvas{width:100%;height:auto;max-height:420px;display:block}
+  .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,#1bb1c9,#52d09b); color:#0a1320;font-weight:800;border:none;cursor:pointer}
+  .btn.secondary{background:#ffffff14;color:var(--text);border:1px solid #ffffff24}
+  .btn.ghost{background:#ffffff10;color:var(--text);border:1px dashed #ffffff40}
+  canvas{width:100%;height:auto;max-height:460px;display:block}
   .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
   .dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
   .tag{font-size:12px;color:var(--muted);padding:6px 8px;border:1px solid #ffffff24;border-radius:999px}
   footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
+
+  /* ===== 列印（PDF 匯出）專用 ===== */
+  @media print{
+    @page{ size: A4; margin: 14mm }
+    body{ background:#fff; color:#000 }
+    header, #webOnly{ display:none !important }
+    .page{ page-break-after: always; background:#fff; border:none; box-shadow:none; padding:0 }
+    .wrap{ max-width:none; padding:0 }
+    .print-container{ width: 100% }
+    .print-title{ font-size:26px; margin-bottom:4px }
+    .print-sub{ color:#333; margin-top:0 }
+    .kpi{ background:#fff; border:1px solid #ddd }
+    .card{ background:#fff; border: none; box-shadow:none; padding:0 }
+    .grid{ grid-template-columns:1fr 1fr; gap:16px }
+    .legend .dot{ border:1px solid #0003 }
+  }
 </style>
 </head>
 <body>
-  <header class="wrap">
+  <header class="wrap" id="webOnly">
     <div class="logo"><span class="mark"></span> 心聚坊 HeartHub Studio</div>
     <span class="pill">心聚指標報告方案（Lite / Pro / Enterprise）＋ 雷達圖</span>
     <div style="flex:1"></div>
     <button class="tab active" data-tab="lite">Lite（單場）</button>
     <button class="tab" data-tab="pro">Pro（季度）</button>
     <button class="tab" data-tab="ent">Enterprise（年度）</button>
+    <div style="flex:1 1 100%;height:0"></div>
+    <div class="row">
+      <div class="input">
+        <label>雷達標籤字級 (px)</label>
+        <input type="number" id="fontPx" value="16" min="10" max="28" step="1" />
+      </div>
+      <button class="btn secondary" id="btnFontApply">套用字級</button>
+      <button class="btn" id="btnPrint">輸出 PDF</button>
+      <button class="btn ghost" id="btnTheme">切換主題</button>
+    </div>
   </header>
 
   <main class="wrap">
-    <!-- KPI + Input -->
+    <!-- 視覺與輸入 -->
     <div class="grid">
       <section class="card">
         <h2 id="title">Lite 成效報告</h2>
         <h3 class="muted" id="subtitle">單場即時｜課前 vs 課後 Δ</h3>
 
-        <div class="kpis" id="kpis">
-          <!-- 動態填入 -->
-        </div>
+        <div class="kpis" id="kpis"></div>
 
         <h3 style="margin-top:14px">編輯四指標 Δ 值</h3>
         <div class="row">
@@ -129,7 +113,6 @@
           <div class="input"><label>社會連結 Δ</label><input type="number" step="0.1" id="v_social" value="0.9"></div>
           <div class="input"><label>專注力 Δ</label><input type="number" step="0.1" id="v_focus" value="0.6"></div>
           <button class="btn" id="btnUpdate">更新圖表</button>
-          <button class="btn secondary" id="btnTheme">切換主題</button>
         </div>
       </section>
 
@@ -137,8 +120,8 @@
         <h2>操作小抄</h2>
         <ul class="muted" style="line-height:1.6">
           <li>左側輸入四指標 Δ，按「更新圖表」。</li>
-          <li>下方兩張圖：① 指標雷達；② 投影成 Plutchik 八大情緒。</li>
-          <li>可在頁面中切換到 Pro / Enterprise 看不同示例。</li>
+          <li>下方兩張圖：① 指標雷達；② Plutchik 八大情緒投影。</li>
+          <li>右上可調整雷達標籤字級；按「輸出 PDF」一鍵產出正式報告。</li>
         </ul>
         <div class="row" style="margin-top:8px">
           <span class="tag">四指標：穩定度／壓力復原／社會連結／專注力</span>
@@ -147,159 +130,87 @@
       </aside>
     </div>
 
-    <!-- Charts -->
+    <!-- 圖表 -->
     <section class="grid" style="margin-top:18px">
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
           <h2>雷達圖①｜心聚四指標</h2>
-          <div class="row">
-            <button class="btn secondary" data-dl="radar1">下載 PNG</button>
-          </div>
+          <div class="row"><button class="btn secondary" data-dl="radar1">下載 PNG</button></div>
         </div>
-        <canvas id="radar1" width="900" height="600"></canvas>
+        <canvas id="radar1" width="1000" height="660" data-role="radar"></canvas>
         <div class="legend" id="legend1"></div>
       </section>
 
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
           <h2>雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
-          <div class="row">
-            <button class="btn secondary" data-dl="radar2">下載 PNG</button>
-          </div>
+          <div class="row"><button class="btn secondary" data-dl="radar2">下載 PNG</button></div>
         </div>
-        <canvas id="radar2" width="900" height="600"></canvas>
+        <canvas id="radar2" width="1000" height="660" data-role="radar"></canvas>
         <div class="legend" id="legend2"></div>
       </section>
     </section>
 
-    <!-- Tables per tab -->
+    <!-- 表格 -->
     <section class="card" style="margin-top:18px">
       <h2 id="tbl_title">報告重點表</h2>
-      <table class="tbl" id="tbl">
-        <!-- 動態填入 -->
-      </table>
+      <table class="tbl" id="tbl"></table>
     </section>
+
+    <!-- ===== 列印版（PDF）頁面結構：封面 + 摘要 + 圖表 + 表格 ===== -->
+    <div class="print-container" style="display:none">
+      <section class="page" id="p1" style="padding:8mm 0 4mm">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#1bb1c9, #52d09b)"></div>
+          <div style="font-weight:700">心聚坊 HeartHub Studio</div>
+        </div>
+        <h1 class="print-title">心聚指標成效報告（<span id="printTabName">Lite</span>）</h1>
+        <p class="print-sub">版本：<span id="printDate"></span></p>
+        <div class="kpis" id="pkpis" style="margin-top:10px"></div>
+      </section>
+
+      <section class="page" id="p2" style="padding:6mm 0 4mm">
+        <h2 style="margin:0 0 6px">雷達圖①｜心聚四指標</h2>
+        <canvas id="pr1" width="2480" height="1748"></canvas>
+        <div id="pl1" style="font-size:12px;margin-top:6px"></div>
+        <div style="height:8mm"></div>
+        <h2 style="margin:0 0 6px">雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
+        <canvas id="pr2" width="2480" height="1748"></canvas>
+        <div id="pl2" style="font-size:12px;margin-top:6px"></div>
+      </section>
+
+      <section class="page" id="p3" style="padding:6mm 0 4mm">
+        <h2 style="margin:0 0 8px" id="ptbl_title">報告重點表</h2>
+        <div id="ptblWrap"></div>
+        <p style="color:#444;margin-top:8mm;font-size:12px">備註：本報告之「四指標 → 情緒」映射為示範，可依實務與顧問校準。</p>
+      </section>
+    </div>
   </main>
 
-  <footer>
-    © 心聚坊 HeartHub Studio ｜本頁僅示範用。指標與情緒映射可依實務校準。
-  </footer>
+  <footer>© 心聚坊 HeartHub Studio ｜列印版已為 A4 最佳化。若需公司 Logo/主色，可於程式碼頂部自訂。</footer>
 
 <script>
-/* ========= 1) 公用：簡易雷達圖（無外掛） ========= */
-function drawRadar(canvas, labels, datasets, options = {}){
-  const ctx = canvas.getContext('2d');
-  const dpr = window.devicePixelRatio || 1;
-  // 讓導出更清晰
-  canvas.width = canvas.width * dpr; 
-  canvas.height = canvas.height * dpr;
-  ctx.scale(dpr, dpr);
-
-  const W = canvas.width / dpr, H = canvas.height / dpr;
-  const cx = W/2, cy = H/2, pad = 50;
-  const r = Math.min(W, H)/2 - pad;
-
-  // 計算最大值（自動）
-  let maxVal = 0;
-  datasets.forEach(ds => ds.values.forEach(v => { if(v>maxVal) maxVal=v; }));
-  maxVal = Math.max(maxVal, options.minMax?.max ?? 1.2); // 預留頭部
-  const rings = options.rings ?? 4;
-
-  // 背景網格
-  ctx.save();
-  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid');
-  ctx.lineWidth = 1;
-  for(let i=1;i<=rings;i++){
-    const rr = r * i/rings;
-    ctx.beginPath();
-    for(let k=0;k<labels.length;k++){
-      const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
-      const x = cx + rr*Math.cos(ang);
-      const y = cy + rr*Math.sin(ang);
-      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-    }
-    ctx.closePath(); ctx.stroke();
-  }
-  // 徑向軸 + 標籤
-  ctx.fillStyle = getComputedStyle(document.body).color;
-  ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial";
-  labels.forEach((lab,k)=>{
-    const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
-    const x = cx + (r+10)*Math.cos(ang);
-    const y = cy + (r+10)*Math.sin(ang);
-    ctx.beginPath();
-    ctx.moveTo(cx,cy); ctx.lineTo(cx + r*Math.cos(ang), cy + r*Math.sin(ang));
-    ctx.stroke();
-    // 文字
-    ctx.textAlign = Math.cos(ang)>0.2 ? "left" : (Math.cos(ang)<-0.2 ? "right" : "center");
-    ctx.textBaseline = Math.sin(ang)>0.2 ? "top" : (Math.sin(ang)<-0.2 ? "bottom" : "middle");
-    ctx.fillText(lab, x, y);
-  });
-  ctx.restore();
-
-  // 繪製資料集
-  datasets.forEach((ds, idx)=>{
-    const color = ds.color || pickColor(idx);
-    const alpha = ds.fill ?? 0.15;
-    const pts = ds.values.map((v,k)=>{
-      const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
-      const rr = (v/maxVal) * r;
-      return [cx + rr*Math.cos(ang), cy + rr*Math.sin(ang)];
-    });
-
-    // 面積
-    ctx.beginPath();
-    pts.forEach((p,i)=>{ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
-    ctx.closePath();
-    ctx.fillStyle = hexToRgba(color, alpha);
-    ctx.fill();
-
-    // 線條
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-
-    // 節點
-    ctx.fillStyle = color;
-    pts.forEach(p=>{
-      ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill();
-    });
-  });
-
-  // 回傳一個導出方法
-  return {
-    toPNG(){
-      // 恢復成 1x，避免下載太小：重畫一次 2x
-      const tmp = document.createElement('canvas');
-      const scale = 2;
-      tmp.width = canvas.width * scale / dpr; tmp.height = canvas.height * scale / dpr;
-      const c = tmp.getContext('2d');
-      c.scale(scale, scale);
-      // 簡單再畫一遍
-      drawRadar(tmp, labels, datasets, options); // 這裡會遞迴，但 tmp 與 canvas 不同
-      return tmp.toDataURL('image/png');
-    }
-  };
-}
-function pickColor(i){
-  const palette = ['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff'];
-  return palette[i % palette.length];
-}
+/* ========== 0) 小工具 ========== */
+const $ = (sel)=>document.querySelector(sel);
+const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
+function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
+function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
+function pickColor(i){ const palette = ['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff']; return palette[i % palette.length]; }
 function hexToRgba(hex, a){
-  const h = hex.replace('#','');
-  const bigint = parseInt(h,16);
-  const r=(bigint>>16)&255,g=(bigint>>8)&255,b=bigint&255;
+  const h = hex.replace('#',''); const bigint = parseInt(h,16);
+  const r=(bigint>>16)&255,g=(bigint>>8)&255,b=(bigint)&255;
   return `rgba(${r},${g},${b},${a})`;
 }
 
-/* ========= 2) 業務邏輯：資料、映射、版面 ========= */
+/* ========== 1) 狀態 ========== */
 const state = {
   tab:'lite',
   indicators:{stable:0.8, res:1.1, social:0.9, focus:0.6},
+  radarFontPx: 16,
   exports:{}
 };
 
-// Plutchik 映射（示範規則，可在實務中校準）
+/* ========== 2) 指標 → 情緒 (Plutchik) 映射（示範用，可調整） ========== */
 function indicatorsToPlutchik(ind){
   const {stable,res,social,focus} = ind;
   return {
@@ -313,13 +224,119 @@ function indicatorsToPlutchik(ind){
     "Anticipation(期待)": (focus + stable)/2
   };
 }
-function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
 
-/* ========= 3) 初始化與渲染 ========= */
-const $ = (sel)=>document.querySelector(sel);
+/* ========== 3) 高可靠雷達圖（純 Canvas，支援字級、DPR、列印高解析） ========== */
+function drawRadar(canvas, labels, datasets, options = {}){
+  // 若容器尚未完成布局，避免 0 尺寸導致繪圖失敗
+  const rect = canvas.getBoundingClientRect();
+  if(rect.width === 0 || rect.height === 0){
+    // 延後一拍再畫
+    requestAnimationFrame(()=>drawRadar(canvas, labels, datasets, options));
+    return { toPNG: ()=>canvas.toDataURL('image/png') };
+  }
+
+  const ctx = canvas.getContext('2d');
+  const dpr = options.forceDPR || window.devicePixelRatio || 1;
+
+  // 以 CSS 像素為基準的目標大小
+  const cssW = canvas.getAttribute('width') ? parseInt(canvas.getAttribute('width')) : rect.width;
+  const cssH = canvas.getAttribute('height') ? parseInt(canvas.getAttribute('height')) : rect.height;
+
+  // 內部實際像素大小（提高清晰度）
+  canvas.width = Math.max(600, Math.round(cssW * dpr));
+  canvas.height = Math.max(400, Math.round(cssH * dpr));
+  // 畫布顯示大小（維持原 CSS 比例）
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+
+  // 將座標轉回 CSS 尺度，避免字太小
+  ctx.scale(dpr, dpr);
+
+  const W = canvas.width / dpr, H = canvas.height / dpr;
+  const cx = W/2, cy = H/2;
+  const pad = options.padding ?? 60;
+  const r = Math.min(W, H)/2 - pad;
+
+  // 取最大值，留頭部空間
+  let maxVal = 0;
+  datasets.forEach(ds => ds.values.forEach(v => { if(v>maxVal) maxVal=v; }));
+  maxVal = Math.max(maxVal, options.minMax?.max ?? 1.2);
+  const rings = options.rings ?? 4;
+
+  // 背景網格
+  ctx.save();
+  ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid') || '#e5ecfa';
+  ctx.lineWidth = 1;
+  for(let i=1;i<=rings;i++){
+    const rr = r * i/rings;
+    ctx.beginPath();
+    for(let k=0;k<labels.length;k++){
+      const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
+      const x = cx + rr*Math.cos(ang);
+      const y = cy + rr*Math.sin(ang);
+      if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.stroke();
+  }
+  // 徑向軸 + 標籤
+  const fontPx = options.fontPx || 16;
+  ctx.fillStyle = getComputedStyle(document.body).color || '#111';
+  ctx.font = `500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
+  labels.forEach((lab,k)=>{
+    const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
+    const x = cx + (r+14)*Math.cos(ang);
+    const y = cy + (r+14)*Math.sin(ang);
+    // 軸
+    ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx + r*Math.cos(ang), cy + r*Math.sin(ang)); ctx.stroke();
+    // 文
+    ctx.textAlign = Math.cos(ang)>0.2 ? "left" : (Math.cos(ang)<-0.2 ? "right" : "center");
+    ctx.textBaseline = Math.sin(ang)>0.2 ? "top" : (Math.sin(ang)<-0.2 ? "bottom" : "middle");
+    ctx.fillText(lab, x, y);
+  });
+  ctx.restore();
+
+  // 資料集
+  datasets.forEach((ds, idx)=>{
+    const color = ds.color || pickColor(idx);
+    const alpha = ds.fill ?? 0.18;
+    const pts = ds.values.map((v,k)=>{
+      const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
+      const rr = (v/maxVal) * r;
+      return [cx + rr*Math.cos(ang), cy + rr*Math.sin(ang)];
+    });
+
+    // 面積
+    ctx.beginPath();
+    pts.forEach((p,i)=>{ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
+    ctx.closePath();
+    ctx.fillStyle = hexToRgba(color, alpha); ctx.fill();
+
+    // 線條
+    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
+
+    // 節點
+    ctx.fillStyle = color;
+    pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill(); });
+  });
+
+  return {
+    toPNG(scale=2){
+      const tmp = document.createElement('canvas');
+      tmp.width = canvas.width * scale / dpr; tmp.height = canvas.height * scale / dpr;
+      const c = tmp.getContext('2d');
+      c.scale(scale, scale);
+      drawRadar(tmp, labels, datasets, {...options}); // 以相同參數重畫
+      return tmp.toDataURL('image/png');
+    }
+  };
+}
+
+/* ========== 4) 動態渲染 ========== */
+function kpiHTML(items){ return items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join(""); }
+function legendHTML(ds){ return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join(""); }
 
 function render(){
-  // 標題 & KPI & 表格
+  // 文案區
   const t = $("#title"), st = $("#subtitle"), kpis = $("#kpis"), tbl = $("#tbl"), tt=$("#tbl_title");
   if(state.tab==='lite'){
     t.textContent = "Lite 成效報告";
@@ -375,7 +392,7 @@ function render(){
     `;
   }
 
-  // 圖①：心聚四指標
+  // 圖①：心聚四指標（依 tab 切換資料）
   const labels1 = ["穩定度","壓力復原","社會連結","專注力"];
   const v = state.indicators;
   const dsLite = [{ label:"本場 Δ", color:"#59d1c5", values:[v.stable, v.res, v.social, v.focus], fill:.18 }];
@@ -389,66 +406,134 @@ function render(){
     {label:"產業常模", color:"#7aa6ff", values:[0.7,0.9,0.8,0.6], fill:.10},
   ];
   const ds1 = state.tab==='lite' ? dsLite : state.tab==='pro' ? dsPro : dsEnt;
-  const ex1 = drawRadar($("#radar1"), labels1, ds1, {rings:4});
+  const ex1 = drawRadar($("#radar1"), labels1, ds1, {rings:4, fontPx: state.radarFontPx, padding: 70});
   state.exports.radar1 = ex1;
 
   // 圖②：Plutchik 八大情緒（由四指標投影）
   const em = indicatorsToPlutchik(v);
   const labels2 = Object.keys(em);
   const ds2 = [{label:"情緒強度", color:"#7aa6ff", values:Object.values(em), fill:.18}];
-  const ex2 = drawRadar($("#radar2"), labels2, ds2, {rings:4});
+  const ex2 = drawRadar($("#radar2"), labels2, ds2, {rings:4, fontPx: state.radarFontPx, padding: 80});
   state.exports.radar2 = ex2;
 
   // Legend
   $("#legend1").innerHTML = legendHTML(ds1);
   $("#legend2").innerHTML = legendHTML(ds2);
 }
-function kpiHTML(items){
-  return items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("");
-}
-function legendHTML(ds){
-  return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join("");
-}
-function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
 
-function updateFromInputs(){
-  state.indicators.stable = parseFloat($("#v_stable").value||0);
-  state.indicators.res    = parseFloat($("#v_res").value||0);
-  state.indicators.social = parseFloat($("#v_social").value||0);
-  state.indicators.focus  = parseFloat($("#v_focus").value||0);
-  render();
-}
+/* ========== 5) 事件綁定 ========== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  // Tab
+  $$('.tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      $$('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.tab = btn.dataset.tab;
+      render();
+    });
+  });
 
-document.querySelectorAll('.tab').forEach(btn=>{
-  btn.addEventListener('click', ()=>{
-    document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    state.tab = btn.dataset.tab;
+  // 更新資料
+  $("#btnUpdate").addEventListener('click', ()=>{
+    state.indicators.stable = parseFloat($("#v_stable").value||0);
+    state.indicators.res    = parseFloat($("#v_res").value||0);
+    state.indicators.social = parseFloat($("#v_social").value||0);
+    state.indicators.focus  = parseFloat($("#v_focus").value||0);
     render();
   });
-});
-$("#btnUpdate").addEventListener('click', updateFromInputs);
 
-// 切換主題：簡單反轉背景（可自行擴充）
-$("#btnTheme").addEventListener('click', ()=>{
-  document.documentElement.style.filter = 
-    (document.documentElement.style.filter==='invert(1) hue-rotate(180deg)') ? '' : 'invert(1) hue-rotate(180deg)';
-});
-
-// 下載按鈕
-document.querySelectorAll('[data-dl]').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    const key = b.getAttribute('data-dl');
-    const url = state.exports[key].toPNG();
-    const a = document.createElement('a');
-    a.href = url; a.download = key + '.png';
-    a.click();
+  // 雷達字級
+  $("#btnFontApply").addEventListener('click', ()=>{
+    const v = parseInt($("#fontPx").value||16,10);
+    state.radarFontPx = clamp(v, 10, 28);
+    render();
   });
+
+  // 主題
+  $("#btnTheme").addEventListener('click', ()=>{
+    document.documentElement.style.filter =
+      (document.documentElement.style.filter==='invert(1) hue-rotate(180deg)') ? '' : 'invert(1) hue-rotate(180deg)';
+  });
+
+  // 下載 PNG
+  document.querySelectorAll('[data-dl]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const key = b.getAttribute('data-dl');
+      const url = state.exports[key].toPNG(2);
+      const a = document.createElement('a'); a.href = url; a.download = key + '.png'; a.click();
+    });
+  });
+
+  // 一鍵輸出 PDF（使用瀏覽器列印，已做 A4 排版）
+  $("#btnPrint").addEventListener('click', preparePrintAndOpen);
+
+  // 初始渲染
+  render();
 });
 
-// 初始渲染
-render();
+/* ========== 6) PDF：列印前重繪高解析，填入列印頁面，開啟列印 ========= */
+function preparePrintAndOpen(){
+  // 顯示列印容器
+  const wrap = document.querySelector('.print-container');
+  wrap.style.display = 'block';
+
+  // 封面 KPI
+  $("#printTabName").textContent = state.tab==='lite' ? 'Lite（單場）' : state.tab==='pro' ? 'Pro（季度）' : 'Enterprise（年度）';
+  $("#printDate").textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric',month:'2-digit',day:'2-digit'});
+  $("#pkpis").innerHTML = $("#kpis").innerHTML;
+
+  // 取得畫布並以高解析（A4 寬度）重畫
+  const pr1 = $("#pr1"), pr2 = $("#pr2");
+  const fontPx = Math.max(16, state.radarFontPx + 2);   // 列印字再放大一點
+  const labels1 = ["穩定度","壓力復原","社會連結","專注力"];
+  const v = state.indicators;
+  const dsLite = [{ label:"本場 Δ", color:"#59d1c5", values:[v.stable, v.res, v.social, v.focus], fill:.18 }];
+  const dsPro = [
+    {label:"行政部", color:"#59d1c5", values:[1.1,1.2,1.0,0.8], fill:.16},
+    {label:"業務部", color:"#ffa07a", values:[0.6,0.7,0.5,0.6], fill:.10},
+    {label:"研發部", color:"#7aa6ff", values:[0.9,1.0,0.8,0.7], fill:.10},
+  ];
+  const dsEnt = [
+    {label:"本年度均值", color:"#59d1c5", values:[0.9,1.2,1.0,0.7], fill:.18},
+    {label:"產業常模", color:"#7aa6ff", values:[0.7,0.9,0.8,0.6], fill:.10},
+  ];
+  const ds1 = state.tab==='lite' ? dsLite : state.tab==='pro' ? dsPro : dsEnt;
+  const exp1 = drawRadar(pr1, labels1, ds1, {rings:4, fontPx, padding: 90, forceDPR: 2});
+  $("#pl1").innerHTML = legendHTML(ds1);
+
+  const em = indicatorsToPlutchik(v);
+  const labels2 = Object.keys(em);
+  const ds2 = [{label:"情緒強度", color:"#7aa6ff", values:Object.values(em), fill:.18}];
+  const exp2 = drawRadar(pr2, labels2, ds2, {rings:4, fontPx, padding: 100, forceDPR: 2});
+  $("#pl2").innerHTML = legendHTML(ds2);
+
+  // 表格
+  $("#ptbl_title").textContent = $("#tbl_title").textContent;
+  const tblClone = $("#tbl").cloneNode(true);
+  tblClone.style.fontSize = '13px';
+  tblClone.style.width = '100%';
+  $("#ptblWrap").innerHTML = '';
+  $("#ptblWrap").appendChild(tblClone);
+
+  // 開啟列印（使用 onafterprint 還原）
+  const prevFilter = document.documentElement.style.filter;
+  const prevDisplay = document.querySelector('main').style.display;
+  window.onbeforeprint = ()=>{ document.documentElement.style.filter=''; };
+  window.onafterprint = ()=>{
+    wrap.style.display='none';
+    document.documentElement.style.filter = prevFilter;
+    document.querySelector('main').style.display = prevDisplay || '';
+  };
+  window.print();
+}
+
+/* ========== 7) 可見性變化時的穩定性修正（避免切分頁/隱藏時畫布 0 尺寸） ========== */
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden){
+    // 回到頁面時再重畫一次
+    requestAnimationFrame(render);
+  }
+});
 </script>
 </body>
 </html>
-

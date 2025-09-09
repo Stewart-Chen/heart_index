@@ -81,13 +81,26 @@
       --footer-reserve:12mm;     /* 為頁腳預留高度 */
       --print-height: calc(297mm - 2 * 10mm);
     }
+    /* 讓每個 .page 真的撐滿一整張紙的可列印高度 */
     .page{
+      position:relative;
       min-height: var(--print-height);
-      display:flex; flex-direction:column;
-      box-sizing:border-box;
-      padding: 0 var(--page-pad-x) var(--footer-reserve) var(--page-pad-x);
+      box-sizing: border-box;
+      padding: 0 var(--page-pad-x) calc(var(--footer-reserve) + 2mm) var(--page-pad-x);
+      background:#fff;
     }
-    .pfooter{ position:static; margin-top:auto; border-top:1px solid #eee; padding-top:2mm; }
+    .page:not(:last-child){ page-break-after:always }
+      /* 頁腳固定貼在頁面底部 */
+    .pfooter{
+      position:absolute;
+      left:var(--page-pad-x);
+      right:var(--page-pad-x);
+      bottom:0;
+      font-size:10px; color:#888;
+      border-top:1px solid #eee;
+      padding-top:2mm; margin-top:0;
+      background:#fff;
+    }
     .ph{ font-size:11px; color:#777; letter-spacing:.3px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e6e6e6; padding:2mm 0 }
     .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
     .psub{ color:#333; margin:0 0 3mm }

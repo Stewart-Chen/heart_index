@@ -140,15 +140,15 @@ function render(){
     <tr><td>下一步建議</td><td>${listHTML(state.next)}</td></tr>
     <tr><td>學員一句話</td><td>${state.quotes.length? `<ul style="margin:0;padding-left:18px">${state.quotes.map(s=>`<li>「${Common.esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）'}</td></tr>`;
 
-  // 雷達（畫在頁面上）
+  // 雷達
   const labels1=["穩定度","壓力復原","社會連結","專注力"];
   const ds1=[{label:"本場 Δ",color:"#59d1c5",values:[d.stable,d.res,d.social,d.focus],fill:.18}];
-  state.exports.radar1 = drawRadar($('#radar1'),labels1,ds1,{padding:70, fontPx:12});
+  state.exports.radar1 = drawRadar($('#radar1'),labels1,ds1,{padding:70});
   $('#legend1').innerHTML = legendHTML(ds1);
 
   const em = indicatorsToPlutchik(state.deltas);
   const labels2=Object.keys(em); const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
-  state.exports.radar2 = drawRadar($('#radar2'),labels2,ds2,{padding:80, fontPx:11});
+  state.exports.radar2 = drawRadar($('#radar2'),labels2,ds2,{padding:80});
   $('#legend2').innerHTML = legendHTML(ds2);
 
   renderDynamic();
@@ -194,30 +194,17 @@ $('#apply').addEventListener('click', ()=>{
 $('#print').addEventListener('click', ()=>{
   const kpiHtml = $('#kpis').innerHTML;
   const tableTitle = $('#tbl_title').textContent;
-
-  // 準備雷達設定（交給 common.js 在 PDF 內頁 canvas 重畫）
-  const r1 = {
-    labels:["穩定度","壓力復原","社會連結","專注力"],
-    datasets:[{label:"本場 Δ",color:"#59d1c5",values:[state.deltas.stable,state.deltas.res,state.deltas.social,state.deltas.focus],fill:.18}],
-    options:{padding:110, fontPx:18}
-  };
-  const em = indicatorsToPlutchik(state.deltas);
-  const r2 = {
-    labels:Object.keys(em),
-    datasets:[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}],
-    options:{padding:120, fontPx:18}
-  };
-
-  Common.printNow('lite', state.brand, kpiHtml, tableTitle, null, {
-    tableNode: $('#tbl'),                 // 讓列印自動過濾重複列
-    radar1: r1, radar2: r2,              // 內頁 canvas 重畫
-    legend1HTML: $('#legend1').innerHTML,
-    legend2HTML: $('#legend2').innerHTML,
-    suggestionsHTML: Common.listHTML(state.next),
-    quotesHTML: state.quotes.length? `<ul style="margin:0;padding-left:18px">${state.quotes.map(s=>`<li>「${Common.esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）',
+  const tableHTML = $('#tbl').outerHTML;
+  const opts = {
+    quotes: state.quotes.length? `<ul style="margin:0;padding-left:18px">${state.quotes.map(s=>`<li>「${Common.esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）',
     actionsHTML: barsHTML(state.actions),
-    rippleHTML:  barsHTML(state.ripple)
-  });
+    rippleHTML: barsHTML(state.ripple),
+    suggestionsHTML: Common.listHTML(state.next),
+    roi:null, planHTML:null,
+    radarPNGs:[ state.exports.radar1?.toPNG(2.0), state.exports.radar2?.toPNG(2.0) ],
+    legends:[ $('#legend1').innerHTML, $('#legend2').innerHTML ]
+  };
+  Common.printNow('lite', state.brand, kpiHtml, tableTitle, tableHTML, opts);
 });
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -225,6 +212,4 @@ document.addEventListener('DOMContentLoaded', ()=>{
   render();
 });
 </script>
-
 </body></html>
-

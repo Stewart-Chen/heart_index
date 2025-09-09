@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>心聚指標報告方案｜Lite / Pro / Enterprise + 雷達圖（含 PDF 匯出）</title>
+<title>心聚指標報告｜Lite / Pro / Enterprise + 雷達圖（修正版＋PDF）</title>
 <style>
   :root{
     --bg:#0b1320; --card:#121a2b; --muted:#9bb0d3; --text:#eaf2ff;
@@ -65,11 +65,10 @@
     @page{ size: A4; margin: 14mm }
     body{ background:#fff; color:#000 }
     header, #webOnly{ display:none !important }
+    main{ display:none !important }          /* ← 只印列印容器，避免重複頁 */
+    .print-container{ display:block !important }
     .page{ page-break-after: always; background:#fff; border:none; box-shadow:none; padding:0 }
     .wrap{ max-width:none; padding:0 }
-    .print-container{ width: 100% }
-    .print-title{ font-size:26px; margin-bottom:4px }
-    .print-sub{ color:#333; margin-top:0 }
     .kpi{ background:#fff; border:1px solid #ddd }
     .card{ background:#fff; border: none; box-shadow:none; padding:0 }
     .grid{ grid-template-columns:1fr 1fr; gap:16px }
@@ -98,7 +97,6 @@
   </header>
 
   <main class="wrap">
-    <!-- 視覺與輸入 -->
     <div class="grid">
       <section class="card">
         <h2 id="title">Lite 成效報告</h2>
@@ -130,14 +128,13 @@
       </aside>
     </div>
 
-    <!-- 圖表 -->
     <section class="grid" style="margin-top:18px">
       <section class="card">
         <div class="row" style="justify-content:space-between;align-items:center">
           <h2>雷達圖①｜心聚四指標</h2>
           <div class="row"><button class="btn secondary" data-dl="radar1">下載 PNG</button></div>
         </div>
-        <canvas id="radar1" width="1000" height="660" data-role="radar"></canvas>
+        <canvas id="radar1" data-role="radar"></canvas>
         <div class="legend" id="legend1"></div>
       </section>
 
@@ -146,18 +143,17 @@
           <h2>雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
           <div class="row"><button class="btn secondary" data-dl="radar2">下載 PNG</button></div>
         </div>
-        <canvas id="radar2" width="1000" height="660" data-role="radar"></canvas>
+        <canvas id="radar2" data-role="radar"></canvas>
         <div class="legend" id="legend2"></div>
       </section>
     </section>
 
-    <!-- 表格 -->
     <section class="card" style="margin-top:18px">
       <h2 id="tbl_title">報告重點表</h2>
       <table class="tbl" id="tbl"></table>
     </section>
 
-    <!-- ===== 列印版（PDF）頁面結構：封面 + 摘要 + 圖表 + 表格 ===== -->
+    <!-- 列印專用容器 -->
     <div class="print-container" style="display:none">
       <section class="page" id="p1" style="padding:8mm 0 4mm">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
@@ -171,46 +167,42 @@
 
       <section class="page" id="p2" style="padding:6mm 0 4mm">
         <h2 style="margin:0 0 6px">雷達圖①｜心聚四指標</h2>
-        <canvas id="pr1" width="2480" height="1748"></canvas>
+        <canvas id="pr1" width="2480" height="1700"></canvas>
         <div id="pl1" style="font-size:12px;margin-top:6px"></div>
         <div style="height:8mm"></div>
         <h2 style="margin:0 0 6px">雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
-        <canvas id="pr2" width="2480" height="1748"></canvas>
+        <canvas id="pr2" width="2480" height="1700"></canvas>
         <div id="pl2" style="font-size:12px;margin-top:6px"></div>
       </section>
 
       <section class="page" id="p3" style="padding:6mm 0 4mm">
         <h2 style="margin:0 0 8px" id="ptbl_title">報告重點表</h2>
         <div id="ptblWrap"></div>
-        <p style="color:#444;margin-top:8mm;font-size:12px">備註：本報告之「四指標 → 情緒」映射為示範，可依實務與顧問校準。</p>
+        <p style="color:#444;margin-top:8mm;font-size:12px">備註：「四指標 → 情緒」映射為示範，可依實務校準。</p>
       </section>
     </div>
   </main>
 
-  <footer>© 心聚坊 HeartHub Studio ｜列印版已為 A4 最佳化。若需公司 Logo/主色，可於程式碼頂部自訂。</footer>
+  <footer>© 心聚坊 HeartHub Studio</footer>
 
 <script>
-/* ========== 0) 小工具 ========== */
+/* ---------- 工具 ---------- */
 const $ = (sel)=>document.querySelector(sel);
 const $$ = (sel)=>Array.from(document.querySelectorAll(sel));
 function clamp(v,min,max){return Math.max(min, Math.min(max,v));}
 function avg(arr){return arr.reduce((a,b)=>a+b,0)/arr.length}
-function pickColor(i){ const palette = ['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff']; return palette[i % palette.length]; }
-function hexToRgba(hex, a){
-  const h = hex.replace('#',''); const bigint = parseInt(h,16);
-  const r=(bigint>>16)&255,g=(bigint>>8)&255,b=(bigint)&255;
-  return `rgba(${r},${g},${b},${a})`;
-}
+function pickColor(i){ const palette=['#59d1c5','#7aa6ff','#ffc857','#ff6b6b','#c792ea','#4cd984','#ffa07a','#6b8cff']; return palette[i%palette.length]; }
+function hexToRgba(hex,a){ const h=hex.replace('#',''); const n=parseInt(h,16); const r=(n>>16)&255,g=(n>>8)&255,b=n&255; return `rgba(${r},${g},${b},${a})`; }
 
-/* ========== 1) 狀態 ========== */
+/* ---------- 狀態 ---------- */
 const state = {
   tab:'lite',
   indicators:{stable:0.8, res:1.1, social:0.9, focus:0.6},
-  radarFontPx: 16,
+  radarFontPx:16,
   exports:{}
 };
 
-/* ========== 2) 指標 → 情緒 (Plutchik) 映射（示範用，可調整） ========== */
+/* ---------- 指標 → 情緒 ---------- */
 function indicatorsToPlutchik(ind){
   const {stable,res,social,focus} = ind;
   return {
@@ -225,31 +217,22 @@ function indicatorsToPlutchik(ind){
   };
 }
 
-/* ========== 3) 高可靠雷達圖（純 Canvas，支援字級、DPR、列印高解析） ========== */
-function drawRadar(canvas, labels, datasets, options = {}){
-  // 若容器尚未完成布局，避免 0 尺寸導致繪圖失敗
-  const rect = canvas.getBoundingClientRect();
-  if(rect.width === 0 || rect.height === 0){
-    // 延後一拍再畫
-    requestAnimationFrame(()=>drawRadar(canvas, labels, datasets, options));
-    return { toPNG: ()=>canvas.toDataURL('image/png') };
-  }
-
-  const ctx = canvas.getContext('2d');
+/* ---------- 高可靠雷達圖（修正累積縮放） ---------- */
+function drawRadar(canvas, labels, datasets, options={}){
+  // 取 CSS 尺寸（避免使用舊的 width/height 屬性）
+  const cssW = canvas.clientWidth || 1000;
+  const cssH = canvas.clientHeight || 600;
   const dpr = options.forceDPR || window.devicePixelRatio || 1;
 
-  // 以 CSS 像素為基準的目標大小
-  const cssW = canvas.getAttribute('width') ? parseInt(canvas.getAttribute('width')) : rect.width;
-  const cssH = canvas.getAttribute('height') ? parseInt(canvas.getAttribute('height')) : rect.height;
-
-  // 內部實際像素大小（提高清晰度）
-  canvas.width = Math.max(600, Math.round(cssW * dpr));
+  // 設置實體像素尺寸
+  canvas.width  = Math.max(600, Math.round(cssW * dpr));
   canvas.height = Math.max(400, Math.round(cssH * dpr));
-  // 畫布顯示大小（維持原 CSS 比例）
-  canvas.style.width = cssW + 'px';
-  canvas.style.height = cssH + 'px';
 
-  // 將座標轉回 CSS 尺度，避免字太小
+  const ctx = canvas.getContext('2d');
+  // 重置座標系與內容（← 關鍵：避免 scale 累積）
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  // 再按 DPR 進行一次性縮放
   ctx.scale(dpr, dpr);
 
   const W = canvas.width / dpr, H = canvas.height / dpr;
@@ -257,7 +240,7 @@ function drawRadar(canvas, labels, datasets, options = {}){
   const pad = options.padding ?? 60;
   const r = Math.min(W, H)/2 - pad;
 
-  // 取最大值，留頭部空間
+  // 最大值
   let maxVal = 0;
   datasets.forEach(ds => ds.values.forEach(v => { if(v>maxVal) maxVal=v; }));
   maxVal = Math.max(maxVal, options.minMax?.max ?? 1.2);
@@ -278,7 +261,7 @@ function drawRadar(canvas, labels, datasets, options = {}){
     }
     ctx.closePath(); ctx.stroke();
   }
-  // 徑向軸 + 標籤
+  // 軸＋標籤
   const fontPx = options.fontPx || 16;
   ctx.fillStyle = getComputedStyle(document.body).color || '#111';
   ctx.font = `500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
@@ -286,9 +269,7 @@ function drawRadar(canvas, labels, datasets, options = {}){
     const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
     const x = cx + (r+14)*Math.cos(ang);
     const y = cy + (r+14)*Math.sin(ang);
-    // 軸
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx + r*Math.cos(ang), cy + r*Math.sin(ang)); ctx.stroke();
-    // 文
     ctx.textAlign = Math.cos(ang)>0.2 ? "left" : (Math.cos(ang)<-0.2 ? "right" : "center");
     ctx.textBaseline = Math.sin(ang)>0.2 ? "top" : (Math.sin(ang)<-0.2 ? "bottom" : "middle");
     ctx.fillText(lab, x, y);
@@ -305,16 +286,12 @@ function drawRadar(canvas, labels, datasets, options = {}){
       return [cx + rr*Math.cos(ang), cy + rr*Math.sin(ang)];
     });
 
-    // 面積
     ctx.beginPath();
     pts.forEach((p,i)=>{ if(i===0) ctx.moveTo(p[0],p[1]); else ctx.lineTo(p[0],p[1]); });
     ctx.closePath();
     ctx.fillStyle = hexToRgba(color, alpha); ctx.fill();
-
-    // 線條
     ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.stroke();
 
-    // 節點
     ctx.fillStyle = color;
     pts.forEach(p=>{ ctx.beginPath(); ctx.arc(p[0],p[1],3,0,Math.PI*2); ctx.fill(); });
   });
@@ -322,218 +299,166 @@ function drawRadar(canvas, labels, datasets, options = {}){
   return {
     toPNG(scale=2){
       const tmp = document.createElement('canvas');
-      tmp.width = canvas.width * scale / dpr; tmp.height = canvas.height * scale / dpr;
+      // 以當前 CSS 大小重畫高解析
+      tmp.width = Math.round((canvas.clientWidth||1000) * scale);
+      tmp.height= Math.round((canvas.clientHeight||600) * scale);
       const c = tmp.getContext('2d');
+      c.setTransform(1,0,0,1,0,0);
       c.scale(scale, scale);
-      drawRadar(tmp, labels, datasets, {...options}); // 以相同參數重畫
+      drawRadar(tmp, labels, datasets, {...options, forceDPR:1});
       return tmp.toDataURL('image/png');
     }
   };
 }
 
-/* ========== 4) 動態渲染 ========== */
+/* ---------- 渲染 ---------- */
 function kpiHTML(items){ return items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join(""); }
 function legendHTML(ds){ return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join(""); }
 
 function render(){
-  // 文案區
-  const t = $("#title"), st = $("#subtitle"), kpis = $("#kpis"), tbl = $("#tbl"), tt=$("#tbl_title");
+  const t=$("#title"), st=$("#subtitle"), kpis=$("#kpis"), tbl=$("#tbl"), tt=$("#tbl_title");
   if(state.tab==='lite'){
-    t.textContent = "Lite 成效報告";
-    st.textContent = "單場即時｜課前 vs 課後 Δ";
-    kpis.innerHTML = kpiHTML([
+    t.textContent="Lite 成效報告"; st.textContent="單場即時｜課前 vs 課後 Δ";
+    kpis.innerHTML=kpiHTML([
       {l:"平均 Δ", v:avg(Object.values(state.indicators)).toFixed(2)},
       {l:"72h 維持率", v:"76%"},
       {l:"NPS", v:"+68"},
       {l:"學員數", v:"28"}
     ]);
-    tt.textContent = "Lite｜重點表";
-    tbl.innerHTML = `
+    tt.textContent="Lite｜重點表";
+    tbl.innerHTML=`
       <tr><th>項目</th><th>內容</th></tr>
       <tr><td>學員一句話收穫</td><td class="muted">「很久沒有這麼放鬆了」、「和同事一起畫畫很開心」</td></tr>
       <tr><td>行動採納（72h）</td><td class="muted">呼吸練習 60%｜塗鴉 45%｜感謝同事 30%</td></tr>
-      <tr><td>下一步建議</td><td class="muted">下載家庭挑戰包；老師優化教學清晰度；企業建議季度方案</td></tr>
-    `;
+      <tr><td>下一步建議</td><td class="muted">下載家庭挑戰包；老師優化教學清晰度；企業建議季度方案</td></tr>`;
   }else if(state.tab==='pro'){
-    t.textContent = "Pro 季度報告";
-    st.textContent = "季度趨勢｜部門比較";
-    kpis.innerHTML = kpiHTML([
-      {l:"場次", v:"8"},
-      {l:"學員數", v:"172"},
-      {l:"平均 Δ", v:"+0.85"},
-      {l:"平均 NPS", v:"+65"}
-    ]);
-    tt.textContent = "Pro｜部門比較（示例）";
-    tbl.innerHTML = `
+    t.textContent="Pro 季度報告"; st.textContent="季度趨勢｜部門比較";
+    kpis.innerHTML=kpiHTML([{l:"場次",v:"8"},{l:"學員數",v:"172"},{l:"平均 Δ",v:"+0.85"},{l:"平均 NPS",v:"+65"}]);
+    tt.textContent="Pro｜部門比較（示例）";
+    tbl.innerHTML=`
       <tr><th>部門</th><th>平均 Δ</th><th>熱門行動</th></tr>
       <tr><td>行政部</td><td>+1.1</td><td>呼吸練習</td></tr>
       <tr><td>業務部</td><td>+0.6</td><td>感恩挑戰</td></tr>
       <tr><td>研發部</td><td>+0.9</td><td>園藝挑戰</td></tr>
-      <tr><td colspan="3" class="muted">建議處方：強化業務部專注力模組；推廣園藝挑戰包（高轉化）。</td></tr>
-    `;
+      <tr><td colspan="3" class="muted">建議處方：強化業務部專注力模組；推廣園藝挑戰包（高轉化）。</td></tr>`;
   }else{
-    t.textContent = "Enterprise 年度報告";
-    st.textContent = "年度總結｜常模對照｜ROI 故事";
-    kpis.innerHTML = kpiHTML([
-      {l:"總場次", v:"30"},
-      {l:"學員數", v:"560"},
-      {l:"平均 Δ", v:"+0.92"},
-      {l:"NPS 年均", v:"+70"}
-    ]);
-    tt.textContent = "Enterprise｜產業常模對照（示例）";
-    tbl.innerHTML = `
+    t.textContent="Enterprise 年度報告"; st.textContent="年度總結｜常模對照｜ROI 故事";
+    kpis.innerHTML=kpiHTML([{l:"總場次",v:"30"},{l:"學員數",v:"560"},{l:"平均 Δ",v:"+0.92"},{l:"NPS 年均",v:"+70"}]);
+    tt.textContent="Enterprise｜產業常模對照（示例）";
+    tbl.innerHTML=`
       <tr><th>指標</th><th>本公司</th><th>產業常模</th><th>差異</th></tr>
       <tr><td>NPS</td><td>70</td><td>58</td><td>+12</td></tr>
       <tr><td>穩定度 Δ</td><td>+0.9</td><td>+0.7</td><td>+0.2</td></tr>
       <tr><td>壓力復原 Δ</td><td>+1.2</td><td>+0.9</td><td>+0.3</td></tr>
       <tr><td>社會連結 Δ</td><td>+1.0</td><td>+0.8</td><td>+0.2</td></tr>
       <tr><td>專注力 Δ</td><td>+0.7</td><td>+0.6</td><td>+0.1</td></tr>
-      <tr><td colspan="4" class="muted">ROI 故事：78% 員工壓力復原顯著改善；42% 把練習帶進團隊文化 → 支撐續約／擴約。</td></tr>
-    `;
+      <tr><td colspan="4" class="muted">ROI 故事：78% 員工壓力復原顯著改善；42% 帶進團隊文化。</td></tr>`;
   }
 
-  // 圖①：心聚四指標（依 tab 切換資料）
-  const labels1 = ["穩定度","壓力復原","社會連結","專注力"];
-  const v = state.indicators;
-  const dsLite = [{ label:"本場 Δ", color:"#59d1c5", values:[v.stable, v.res, v.social, v.focus], fill:.18 }];
-  const dsPro = [
-    {label:"行政部", color:"#59d1c5", values:[1.1,1.2,1.0,0.8], fill:.16},
-    {label:"業務部", color:"#ffa07a", values:[0.6,0.7,0.5,0.6], fill:.10},
-    {label:"研發部", color:"#7aa6ff", values:[0.9,1.0,0.8,0.7], fill:.10},
-  ];
-  const dsEnt = [
-    {label:"本年度均值", color:"#59d1c5", values:[0.9,1.2,1.0,0.7], fill:.18},
-    {label:"產業常模", color:"#7aa6ff", values:[0.7,0.9,0.8,0.6], fill:.10},
-  ];
-  const ds1 = state.tab==='lite' ? dsLite : state.tab==='pro' ? dsPro : dsEnt;
-  const ex1 = drawRadar($("#radar1"), labels1, ds1, {rings:4, fontPx: state.radarFontPx, padding: 70});
-  state.exports.radar1 = ex1;
+  // 雷達①
+  const labels1=["穩定度","壓力復原","社會連結","專注力"];
+  const v=state.indicators;
+  const dsLite=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];
+  const dsPro=[{label:"行政部",color:"#59d1c5",values:[1.1,1.2,1.0,0.8],fill:.16},{label:"業務部",color:"#ffa07a",values:[0.6,0.7,0.5,0.6],fill:.10},{label:"研發部",color:"#7aa6ff",values:[0.9,1.0,0.8,0.7],fill:.10}];
+  const dsEnt=[{label:"本年度均值",color:"#59d1c5",values:[0.9,1.2,1.0,0.7],fill:.18},{label:"產業常模",color:"#7aa6ff",values:[0.7,0.9,0.8,0.6],fill:.10}];
+  const ds1 = state.tab==='lite'?dsLite: state.tab==='pro'?dsPro: dsEnt;
+  const ex1=drawRadar($("#radar1"),labels1,ds1,{rings:4,fontPx:state.radarFontPx,padding:70});
+  state.exports.radar1=ex1;
 
-  // 圖②：Plutchik 八大情緒（由四指標投影）
-  const em = indicatorsToPlutchik(v);
-  const labels2 = Object.keys(em);
-  const ds2 = [{label:"情緒強度", color:"#7aa6ff", values:Object.values(em), fill:.18}];
-  const ex2 = drawRadar($("#radar2"), labels2, ds2, {rings:4, fontPx: state.radarFontPx, padding: 80});
-  state.exports.radar2 = ex2;
+  // 雷達②
+  const em=indicatorsToPlutchik(v);
+  const labels2=Object.keys(em);
+  const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
+  const ex2=drawRadar($("#radar2"),labels2,ds2,{rings:4,fontPx:state.radarFontPx,padding:80});
+  state.exports.radar2=ex2;
 
-  // Legend
-  $("#legend1").innerHTML = legendHTML(ds1);
-  $("#legend2").innerHTML = legendHTML(ds2);
+  $("#legend1").innerHTML=legendHTML(ds1);
+  $("#legend2").innerHTML=legendHTML(ds2);
 }
 
-/* ========== 5) 事件綁定 ========== */
+/* ---------- 事件 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // Tab
   $$('.tab').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       $$('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      state.tab = btn.dataset.tab;
+      state.tab=btn.dataset.tab;
       render();
     });
   });
-
-  // 更新資料
   $("#btnUpdate").addEventListener('click', ()=>{
-    state.indicators.stable = parseFloat($("#v_stable").value||0);
-    state.indicators.res    = parseFloat($("#v_res").value||0);
-    state.indicators.social = parseFloat($("#v_social").value||0);
-    state.indicators.focus  = parseFloat($("#v_focus").value||0);
+    state.indicators.stable=parseFloat($("#v_stable").value||0);
+    state.indicators.res   =parseFloat($("#v_res").value||0);
+    state.indicators.social=parseFloat($("#v_social").value||0);
+    state.indicators.focus =parseFloat($("#v_focus").value||0);
     render();
   });
-
-  // 雷達字級
   $("#btnFontApply").addEventListener('click', ()=>{
-    const v = parseInt($("#fontPx").value||16,10);
-    state.radarFontPx = clamp(v, 10, 28);
+    state.radarFontPx = clamp(parseInt($("#fontPx").value||16,10),10,28);
     render();
   });
-
-  // 主題
   $("#btnTheme").addEventListener('click', ()=>{
     document.documentElement.style.filter =
       (document.documentElement.style.filter==='invert(1) hue-rotate(180deg)') ? '' : 'invert(1) hue-rotate(180deg)';
   });
-
-  // 下載 PNG
   document.querySelectorAll('[data-dl]').forEach(b=>{
     b.addEventListener('click', ()=>{
-      const key = b.getAttribute('data-dl');
-      const url = state.exports[key].toPNG(2);
-      const a = document.createElement('a'); a.href = url; a.download = key + '.png'; a.click();
+      const key=b.getAttribute('data-dl');
+      const url=state.exports[key].toPNG(2);
+      const a=document.createElement('a'); a.href=url; a.download=key+'.png'; a.click();
     });
   });
-
-  // 一鍵輸出 PDF（使用瀏覽器列印，已做 A4 排版）
   $("#btnPrint").addEventListener('click', preparePrintAndOpen);
-
-  // 初始渲染
   render();
 });
 
-/* ========== 6) PDF：列印前重繪高解析，填入列印頁面，開啟列印 ========= */
+/* ---------- 列印（PDF） ---------- */
 function preparePrintAndOpen(){
-  // 顯示列印容器
-  const wrap = document.querySelector('.print-container');
-  wrap.style.display = 'block';
+  const wrap=document.querySelector('.print-container');
+  wrap.style.display='block';
 
-  // 封面 KPI
-  $("#printTabName").textContent = state.tab==='lite' ? 'Lite（單場）' : state.tab==='pro' ? 'Pro（季度）' : 'Enterprise（年度）';
-  $("#printDate").textContent = new Date().toLocaleDateString('zh-TW', {year:'numeric',month:'2-digit',day:'2-digit'});
+  $("#printTabName").textContent = state.tab==='lite'?'Lite（單場）': state.tab==='pro'?'Pro（季度）':'Enterprise（年度）';
+  $("#printDate").textContent = new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
   $("#pkpis").innerHTML = $("#kpis").innerHTML;
 
-  // 取得畫布並以高解析（A4 寬度）重畫
-  const pr1 = $("#pr1"), pr2 = $("#pr2");
-  const fontPx = Math.max(16, state.radarFontPx + 2);   // 列印字再放大一點
-  const labels1 = ["穩定度","壓力復原","社會連結","專注力"];
-  const v = state.indicators;
-  const dsLite = [{ label:"本場 Δ", color:"#59d1c5", values:[v.stable, v.res, v.social, v.focus], fill:.18 }];
-  const dsPro = [
-    {label:"行政部", color:"#59d1c5", values:[1.1,1.2,1.0,0.8], fill:.16},
-    {label:"業務部", color:"#ffa07a", values:[0.6,0.7,0.5,0.6], fill:.10},
-    {label:"研發部", color:"#7aa6ff", values:[0.9,1.0,0.8,0.7], fill:.10},
-  ];
-  const dsEnt = [
-    {label:"本年度均值", color:"#59d1c5", values:[0.9,1.2,1.0,0.7], fill:.18},
-    {label:"產業常模", color:"#7aa6ff", values:[0.7,0.9,0.8,0.6], fill:.10},
-  ];
-  const ds1 = state.tab==='lite' ? dsLite : state.tab==='pro' ? dsPro : dsEnt;
-  const exp1 = drawRadar(pr1, labels1, ds1, {rings:4, fontPx, padding: 90, forceDPR: 2});
-  $("#pl1").innerHTML = legendHTML(ds1);
+  const pr1=$("#pr1"), pr2=$("#pr2");
+  const fontPx=Math.max(18, state.radarFontPx+2);
 
-  const em = indicatorsToPlutchik(v);
-  const labels2 = Object.keys(em);
-  const ds2 = [{label:"情緒強度", color:"#7aa6ff", values:Object.values(em), fill:.18}];
-  const exp2 = drawRadar(pr2, labels2, ds2, {rings:4, fontPx, padding: 100, forceDPR: 2});
-  $("#pl2").innerHTML = legendHTML(ds2);
+  // 同步資料（避免重覆疊加）
+  const labels1=["穩定度","壓力復原","社會連結","專注力"];
+  const v=state.indicators;
+  const dsLite=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];
+  const dsPro=[{label:"行政部",color:"#59d1c5",values:[1.1,1.2,1.0,0.8],fill:.16},{label:"業務部",color:"#ffa07a",values:[0.6,0.7,0.5,0.6],fill:.10},{label:"研發部",color:"#7aa6ff",values:[0.9,1.0,0.8,0.7],fill:.10}];
+  const dsEnt=[{label:"本年度均值",color:"#59d1c5",values:[0.9,1.2,1.0,0.7],fill:.18},{label:"產業常模",color:"#7aa6ff",values:[0.7,0.9,0.8,0.6],fill:.10}];
+  const ds1 = state.tab==='lite'?dsLite: state.tab==='pro'?dsPro: dsEnt;
+
+  drawRadar(pr1,labels1,ds1,{rings:4,fontPx,padding:110,forceDPR:2});
+  $("#pl1").innerHTML=legendHTML(ds1);
+
+  const em=indicatorsToPlutchik(v);
+  const labels2=Object.keys(em);
+  const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
+  drawRadar(pr2,labels2,ds2,{rings:4,fontPx,padding:120,forceDPR:2});
+  $("#pl2").innerHTML=legendHTML(ds2);
 
   // 表格
-  $("#ptbl_title").textContent = $("#tbl_title").textContent;
-  const tblClone = $("#tbl").cloneNode(true);
-  tblClone.style.fontSize = '13px';
-  tblClone.style.width = '100%';
-  $("#ptblWrap").innerHTML = '';
-  $("#ptblWrap").appendChild(tblClone);
+  $("#ptbl_title").textContent=$("#tbl_title").textContent;
+  const tblClone=$("#tbl").cloneNode(true);
+  tblClone.style.fontSize='13px'; tblClone.style.width='100%';
+  $("#ptblWrap").innerHTML=''; $("#ptblWrap").appendChild(tblClone);
 
-  // 開啟列印（使用 onafterprint 還原）
-  const prevFilter = document.documentElement.style.filter;
-  const prevDisplay = document.querySelector('main').style.display;
-  window.onbeforeprint = ()=>{ document.documentElement.style.filter=''; };
-  window.onafterprint = ()=>{
+  // 列印
+  const prevFilter=document.documentElement.style.filter;
+  window.onbeforeprint=()=>{ document.documentElement.style.filter=''; };
+  window.onafterprint=()=>{
     wrap.style.display='none';
-    document.documentElement.style.filter = prevFilter;
-    document.querySelector('main').style.display = prevDisplay || '';
+    document.documentElement.style.filter=prevFilter;
   };
   window.print();
 }
 
-/* ========== 7) 可見性變化時的穩定性修正（避免切分頁/隱藏時畫布 0 尺寸） ========== */
-document.addEventListener('visibilitychange', ()=>{
-  if(!document.hidden){
-    // 回到頁面時再重畫一次
-    requestAnimationFrame(render);
-  }
-});
+/* ---------- 可見性修正 ---------- */
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden){ requestAnimationFrame(render); }});
 </script>
 </body>
 </html>

@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-Hant"><head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>心聚指標報告｜Enterprise（年度）</title>
+<link rel="stylesheet" href="assets/common.css">
+</head><body>
+<header class="wrap" id="webOnly">
+  <div class="logo"><span class="mark"></span><span id="brandName">心聚坊 HeartHub Studio</span></div>
+  <span class="pill">Enterprise（年度）</span><div style="flex:1"></div>
+  <a class="tab" href="lite.html">Lite</a><a class="tab" href="pro.html">Pro</a>
+
+  <div style="flex-basis:100%;height:0"></div>
+  <div class="row">
+    <div class="input"><label>公司名稱</label><input id="company" value="心聚坊 HeartHub Studio"></div>
+    <div class="input"><label>專案代號</label><input id="project"></div>
+    <div class="input"><label>報告日期</label><input id="rdate" type="date"></div>
+    <div class="input"><label>Logo URL</label><input id="logoUrl"></div>
+    <div class="input"><label>品牌色</label><input id="brandColor" type="color" value="#1bb1c9"></div>
+    <div class="input"><label>聯絡信箱</label><input id="contactEmail" value="support@example.com"></div>
+    <button class="btn" id="apply">套用內容</button>
+    <button class="btn secondary" id="print">輸出 PDF</button>
+  </div>
+
+  <div class="panel active" style="flex-basis:100%">
+    <div class="subhead">KPI</div>
+    <div class="row">
+      <div class="input"><label>總場次</label><input id="total" type="number" value="30"></div>
+      <div class="input"><label>學員數</label><input id="learners" type="number" value="560"></div>
+      <div class="input"><label>平均 Δ</label><input id="avgDelta" value="+0.92"></div>
+      <div class="input"><label>NPS 年均</label><input id="npsYear" value="+70"></div>
+    </div>
+
+    <div class="subhead">雷達圖①｜年度均值 / 產業常模（穩定度 / 壓力復原 / 社會連結 / 專注力）</div>
+    <div class="row">
+      <div class="input"><label>本年度均值</label><input id="yearVals" value="0.9,1.2,1.0,0.7"></div>
+      <div class="input"><label>產業常模</label><input id="normVals" value="0.7,0.9,0.8,0.6"></div>
+      <div class="input"><label>NPS（本公司）</label><input id="npsCompany" value="70"></div>
+      <div class="input"><label>NPS（產業常模）</label><input id="npsIndustry" value="58"></div>
+    </div>
+
+    <div class="subhead">ROI 故事與年度建議</div>
+    <div class="row">
+      <div class="input" style="min-width:420px"><label>ROI 故事</label>
+        <textarea id="roi">78% 員工壓力復原顯著改善；42% 把練習帶進團隊文化，形成可持續的療癒飛輪。</textarea></div>
+      <div class="input" style="min-width:420px"><label>年度建議（每行一點）</label>
+        <textarea id="plan">續約年度療癒方案（12 場）
+新增「專注力進階課程」
+國際據點可複製導入</textarea></div>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <div class="grid">
+    <section class="card">
+      <h2>Enterprise 年度報告</h2><h3 class="muted">年度總結｜常模對照｜ROI 故事</h3>
+      <div class="kpis" id="kpis"></div>
+    </section>
+    <aside class="card"><h2>操作小抄</h2><ul class="muted" style="line-height:1.6"><li>下方常模對照與 ROI/年度建議會進 PDF。</li></ul></aside>
+  </div>
+
+  <section class="grid" style="margin-top:18px">
+    <section class="card"><h2>雷達圖①｜心聚四指標</h2>
+      <canvas id="radar1"></canvas><div class="legend" id="legend1"></div></section>
+    <section class="card"><h2>雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
+      <canvas id="radar2"></canvas><div class="legend" id="legend2"></div></section>
+  </section>
+
+  <section class="card" style="margin-top:18px">
+    <h2 id="tbl_title">Enterprise｜產業常模對照</h2>
+    <table class="tbl" id="tbl"></table>
+  </section>
+</main>
+
+<footer>© <span id="footBrand">心聚坊 HeartHub Studio</span></footer>
+
+<script src="assets/common.js"></script>
+<script>
+const { $, parseLines, parseFour, kpiHTML, legendHTML, listHTML,
+        indicatorsToPlutchik, drawRadar, printNow, esc } = Common;
+
+const state = {
+  brand:{company:'心聚坊 HeartHub Studio',project:'',date:'',logoUrl:'',color:'#1bb1c9',contact:'support@example.com'},
+  kpi:{total:30, learners:560, avgDelta:'+0.92', npsYear:'+70'},
+  radar:{year:[0.9,1.2,1.0,0.7], norm:[0.7,0.9,0.8,0.6], npsCompany:70, npsIndustry:58},
+  roi:'78% 員工壓力復原顯著改善；42% 把練習帶進團隊文化，形成可持續的療癒飛輪。',
+  plan:['續約年度療癒方案（12 場）','新增「專注力進階課程」','國際據點可複製導入'],
+  exports:{}
+};
+
+function render(){
+  $('#kpis').innerHTML = kpiHTML([
+    {l:"總場次",v:String(state.kpi.total)},
+    {l:"學員數",v:String(state.kpi.learners)},
+    {l:"平均 Δ",v:state.kpi.avgDelta},
+    {l:"NPS 年均",v:state.kpi.npsYear}
+  ]);
+  const y=state.radar.year, n=state.radar.norm;
+  const diff=(a,b)=>((a-b)>=0?'+':'')+(a-b).toFixed(1);
+  $('#tbl').innerHTML = `<tr><th>指標</th><th>本公司</th><th>產業常模</th><th>差異</th></tr>
+    <tr><td>NPS</td><td>${state.radar.npsCompany}</td><td>${state.radar.npsIndustry}</td><td>${state.radar.npsCompany-state.radar.npsIndustry>=0?'+':''}${(state.radar.npsCompany-state.radar.npsIndustry).toFixed(0)}</td></tr>
+    <tr><td>穩定度 Δ</td><td>+${y[0]}</td><td>+${n[0]}</td><td>${diff(y[0],n[0])}</td></tr>
+    <tr><td>壓力復原 Δ</td><td>+${y[1]}</td><td>+${n[1]}</td><td>${diff(y[1],n[1])}</td></tr>
+    <tr><td>社會連結 Δ</td><td>+${y[2]}</td><td>+${n[2]}</td><td>${diff(y[2],n[2])}</td></tr>
+    <tr><td>專注力 Δ</td><td>+${y[3]}</td><td>+${n[3]}</td><td>${diff(y[3],n[3])}</td></tr>`;
+
+  // 雷達
+  const labels1=["穩定度","壓力復原","社會連結","專注力"];
+  const ds1=[{label:"本年度均值",color:"#59d1c5",values:y,fill:.18},{label:"產業常模",color:"#7aa6ff",values:n,fill:.10}];
+  state.exports.radar1 = drawRadar($('#radar1'),labels1,ds1,{padding:70});
+  $('#legend1').innerHTML = legendHTML(ds1);
+
+  const ind={stable:y[0],res:y[1],social:y[2],focus:y[3]};
+  const em = indicatorsToPlutchik(ind), ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
+  state.exports.radar2 = drawRadar($('#radar2'),Object.keys(em),ds2,{padding:80});
+  $('#legend2').innerHTML = legendHTML(ds2);
+}
+
+$('#apply').addEventListener('click', ()=>{
+  state.brand.company=$('#company').value||state.brand.company;
+  state.brand.project=$('#project').value||'';
+  state.brand.date=$('#rdate').value||'';
+  state.brand.logoUrl=$('#logoUrl').value||'';
+  state.brand.color=$('#brandColor').value||state.brand.color;
+  state.brand.contact=$('#contactEmail').value||state.brand.contact;
+  document.documentElement.style.setProperty('--brand', state.brand.color);
+  $('#brandName').textContent = state.brand.company; $('#footBrand').textContent = state.brand.company;
+
+  state.kpi.total=parseInt($('#total').value||state.kpi.total,10);
+  state.kpi.learners=parseInt($('#learners').value||state.kpi.learners,10);
+  state.kpi.avgDelta=$('#avgDelta').value||state.kpi.avgDelta;
+  state.kpi.npsYear=$('#npsYear').value||state.kpi.npsYear;
+
+  state.radar.year = Common.parseFour($('#yearVals').value,state.radar.year);
+  state.radar.norm = Common.parseFour($('#normVals').value,state.radar.norm);
+  state.radar.npsCompany=parseFloat($('#npsCompany').value||state.radar.npsCompany);
+  state.radar.npsIndustry=parseFloat($('#npsIndustry').value||state.radar.npsIndustry);
+  state.roi = ($('#roi').value||'').trim();
+  state.plan = Common.parseLines($('#plan').value);
+  render();
+});
+
+$('#print').addEventListener('click', ()=>{
+  const opts = {
+    roi: state.roi,
+    planHTML: Common.listHTML(state.plan),
+    radarPNGs:[ state.exports.radar1?.toPNG(2.0), state.exports.radar2?.toPNG(2.0) ],
+    legends:[ $('#legend1').innerHTML, $('#legend2').innerHTML ]
+  };
+  Common.printNow('ent', state.brand, $('#kpis').innerHTML, $('#tbl_title').textContent, $('#tbl').outerHTML, opts);
+});
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  $('#rdate').value = new Date().toISOString().slice(0,10);
+  render();
+});
+</script>
+</body></html>
+

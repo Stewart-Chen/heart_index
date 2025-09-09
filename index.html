@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>心聚指標報告｜Lite / Pro / Enterprise + 雷達圖（品牌面板＋PDF＋法遵）</title>
+<title>心聚指標報告｜Lite / Pro / Enterprise + 雷達圖（品牌＋PDF 美化）</title>
 <style>
   :root{
     --bg:#0b1320; --card:#121a2b; --muted:#9bb0d3; --text:#eaf2ff;
     --accent:#59d1c5; --accent-2:#7aa6ff; --grid:#24314d;
     --good:#4fe0b0; --warn:#ffb14a; --bad:#ff6b6b;
-    --brand:#1bb1c9; /* 會由面板覆寫 */
+    --brand:#1bb1c9; /* 面板可覆寫 */
   }
   @media (prefers-color-scheme: light){
     :root{
@@ -61,18 +61,40 @@
   .tag{font-size:12px;color:var(--muted);padding:6px 8px;border:1px solid #ffffff24;border-radius:999px}
   footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
 
-  /* ===== 列印（PDF 匯出）專用 ===== */
+  /* ====== 列印（PDF 美化） ====== */
   @media print{
-    @page{ size: A4; margin: 14mm }
+    @page{
+      size: A4;
+      margin: 10mm;              /* 更小邊界，內容更滿 */
+    }
     body{ background:#fff; color:#000 }
     header, #webOnly{ display:none !important }
-    /* 只保留列印容器可見 */
+
+    /* 只顯示列印容器 */
     body * { visibility: hidden; }
     .print-container, .print-container * { visibility: visible; }
-    .print-container{ position: absolute; left:0; top:0; width:100% }
-    .page{ page-break-after: always; background:#fff; border:none; box-shadow:none; padding:0 }
-    .kpi{ background:#fff; border:1px solid #ddd }
+    .print-container{ position: absolute; inset:0; width:100% }
+
+    .page{ page-break-after: always; background:#fff; border:none; box-shadow:none; padding:0 4mm 2mm 4mm }
+    .ph{ font-size:11px; color:#777; letter-spacing:.3px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e6e6e6; padding:2mm 0 2mm }
+    .ptitle{ font-size:22px; font-weight:800; margin:4mm 0 2mm }
+    .psub{ color:#333; margin:0 0 3mm }
+    .pcard{ border:1px solid #e6e6e6; border-radius:6px; padding:3mm; background:#fff; }
+    .kpis.print{ grid-template-columns:repeat(4, 1fr); gap:6mm }
     .legend .dot{ border:1px solid #0003 }
+
+    /* 大尺寸雷達圖（A4 全寬） */
+    .radarPrint{
+      width: 185mm;   /* A4 寬 210mm - 邊界 */
+      height: 115mm;  /* 加大高度 */
+      display:block;
+      margin: 2mm 0 1mm;
+    }
+
+    /* 第3頁採欄寬感：上表格、下法遵 */
+    .section-title{ font-weight:800; margin:4mm 0 2mm; border-left:4px solid var(--brand); padding-left:3mm }
+    .small{ font-size:12.5px; color:#333; line-height:1.7 }
+    .pfooter{ font-size:10px; color:#888; border-top:1px solid #eee; padding-top:2mm; margin-top:3mm }
   }
 </style>
 </head>
@@ -89,7 +111,7 @@
     <!-- 品牌 / 報告表單 -->
     <div style="flex-basis:100%;height:0"></div>
     <div class="row">
-      <div class="input"><label>公司名稱</label><input id="company" placeholder="例：心聚坊 HeartHub Studio" value="心聚坊 HeartHub Studio"></div>
+      <div class="input"><label>公司名稱</label><input id="company" value="心聚坊 HeartHub Studio"></div>
       <div class="input"><label>專案代號</label><input id="project" placeholder="例：HH-2025-Q3"></div>
       <div class="input"><label>報告日期</label><input id="rdate" type="date"></div>
       <div class="input"><label>Logo 圖片 URL</label><input id="logoUrl" placeholder="https://.../logo.png"></div>
@@ -128,9 +150,8 @@
       <aside class="card">
         <h2>操作小抄</h2>
         <ul class="muted" style="line-height:1.6">
-          <li>左側輸入四指標 Δ，按「更新圖表」。</li>
-          <li>下方兩張圖：① 指標雷達；② Plutchik 八大情緒投影。</li>
-          <li>上方面板可設定公司名稱 / Logo / 主色 / 日期 / 專案代號；「輸出 PDF」即可交付。</li>
+          <li>上方面板設定公司名稱 / Logo / 主色 / 日期 / 專案代號；按「輸出 PDF」。</li>
+          <li>「雷達標籤字級」可放大圖上的文字；PDF 會自動用更大的畫布重繪。</li>
         </ul>
         <div class="row" style="margin-top:8px">
           <span class="tag">四指標：穩定度／壓力復原／社會連結／專注力</span>
@@ -163,52 +184,67 @@
     </section>
   </main>
 
-  <!-- 列印專用容器（移到 main 外，避免被隱藏） -->
+  <!-- 列印專用容器（main 之外） -->
   <div class="print-container" style="display:none">
-    <!-- P1 封面 -->
-    <section class="page" id="p1" style="padding:8mm 0 4mm">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-        <img id="plogo" alt="" style="width:18mm;height:18mm;object-fit:contain;border-radius:4px;display:none">
-        <div style="width:18mm;height:18mm;border-radius:5px;background:linear-gradient(135deg,var(--brand), #52d09b)" id="pcolor"></div>
-        <div style="font-weight:700" id="pcompany">心聚坊 HeartHub Studio</div>
+    <!-- P1 封面 + KPI -->
+    <section class="page" id="p1">
+      <div class="ph">
+        <span id="phLeft"></span>
+        <span>心聚指標報告（Lite / Pro / Enterprise）</span>
+        <span id="phRight"></span>
       </div>
-      <h1 class="print-title" style="margin:0 0 6px">心聚指標成效報告（<span id="printTabName">Lite</span>）</h1>
-      <p class="print-sub" style="margin:0 0 10px">
-        公司：<span id="pcompany2">心聚坊 HeartHub Studio</span>　
-        專案：<span id="pproject">—</span>　
-        日期：<span id="printDate"></span>
-      </p>
-      <div class="kpis" id="pkpis" style="margin-top:8px"></div>
+      <div style="display:flex;align-items:center;gap:6mm;margin:6mm 0 4mm">
+        <img id="plogo" alt="" style="width:20mm;height:20mm;object-fit:contain;border-radius:4px;display:none">
+        <div style="width:20mm;height:20mm;border-radius:6px;background:linear-gradient(135deg,var(--brand), #52d09b)" id="pcolor"></div>
+        <div>
+          <div style="font-weight:800" id="pcompany">心聚坊 HeartHub Studio</div>
+          <div style="font-size:12px;color:#666" id="pstrap">心聚指標｜成效報告</div>
+        </div>
+      </div>
+      <div class="ptitle">心聚指標成效報告（<span id="printTabName">Lite</span>）</div>
+      <p class="psub">公司：<span id="pcompany2">心聚坊 HeartHub Studio</span>　專案：<span id="pproject">—</span>　日期：<span id="printDate"></span></p>
+      <div class="kpis print" id="pkpis" style="margin-top:2mm"></div>
+      <div class="pfooter"><span id="footLeft"></span><span style="float:right">第 1 / 3 頁</span></div>
     </section>
 
-    <!-- P2 圖表頁 -->
-    <section class="page" id="p2" style="padding:6mm 0 4mm">
-      <h2 style="margin:0 0 6px">雷達圖①｜心聚四指標</h2>
-      <canvas id="pr1" width="2480" height="1700"></canvas>
-      <div id="pl1" style="font-size:12px;margin-top:6px"></div>
-      <div style="height:8mm"></div>
-      <h2 style="margin:0 0 6px">雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
-      <canvas id="pr2" width="2480" height="1700"></canvas>
-      <div id="pl2" style="font-size:12px;margin-top:6px"></div>
+    <!-- P2 圖表（兩張加大） -->
+    <section class="page" id="p2">
+      <div class="ph">
+        <span id="phLeft2"></span>
+        <span>指標雷達 & 情緒雷達</span>
+        <span id="phRight2"></span>
+      </div>
+      <div class="section-title">雷達圖①｜心聚四指標</div>
+      <canvas id="pr1" class="radarPrint"></canvas>
+      <div id="pl1" class="small"></div>
+      <div class="section-title" style="margin-top:4mm">雷達圖②｜Plutchik 八大情緒（由四指標投影）</div>
+      <canvas id="pr2" class="radarPrint"></canvas>
+      <div id="pl2" class="small"></div>
+      <div class="pfooter"><span id="footLeft2"></span><span style="float:right">第 2 / 3 頁</span></div>
     </section>
 
-    <!-- P3 表格 -->
-    <section class="page" id="p3" style="padding:6mm 0 4mm">
-      <h2 style="margin:0 0 8px" id="ptbl_title">報告重點表</h2>
-      <div id="ptblWrap"></div>
-    </section>
+    <!-- P3 表格 + 法遵（合併一頁） -->
+    <section class="page" id="p3">
+      <div class="ph">
+        <span id="phLeft3"></span>
+        <span>重點摘要與合規聲明</span>
+        <span id="phRight3"></span>
+      </div>
+      <div class="section-title" id="ptbl_title">報告重點表</div>
+      <div id="ptblWrap" class="pcard"></div>
 
-    <!-- P4 法遵 -->
-    <section class="page" id="p4" style="padding:6mm 0 4mm">
-      <h2 style="margin:0 0 8px">法遵與版權聲明</h2>
-      <ol style="line-height:1.7; font-size:12.5px; color:#333">
-        <li><b>資訊安全與隱私</b>：本報告僅呈現統計性結果，不含可識別個人資訊；若涉及個資，已採去識別化處理。</li>
-        <li><b>使用範圍</b>：限於內部教育訓練與管理決策使用，未經書面同意，不得對外散布或轉載。</li>
-        <li><b>非醫療聲明</b>：本報告不構成醫療診斷、治療或心理諮商建議；如需專業協助，請洽合格專業人員。</li>
-        <li><b>資料來源</b>：數據由課程回饋與「心聚指標」自填問卷彙整，評估結果可能受樣本與情境影響。</li>
-        <li><b>智慧財產</b>：本報告之文字、圖表與版型為© <span id="pcompany3">心聚坊 HeartHub Studio</span> 所有；未經授權請勿重製。</li>
-        <li><b>聯絡窗口</b>：如需商用授權、資料更正或異議申訴，請洽：<span id="pcontact">support@example.com</span></li>
-      </ol>
+      <div class="section-title" style="margin-top:5mm">法遵與版權聲明</div>
+      <div class="pcard small">
+        <ol style="margin:0; padding-left:4mm">
+          <li><b>資訊安全與隱私</b>：本報告僅呈現統計性結果，不含可識別個人資訊；若涉及個資，已採去識別化處理。</li>
+          <li><b>使用範圍</b>：限於內部教育訓練與管理決策使用，未經書面同意，不得對外散布或轉載。</li>
+          <li><b>非醫療聲明</b>：本報告不構成醫療診斷、治療或心理諮商建議。</li>
+          <li><b>資料來源</b>：數據由課程回饋與「心聚指標」自填問卷彙整，結果可能受樣本與情境影響。</li>
+          <li><b>智慧財產</b>：本報告之文字、圖表與版型為© <span id="pcompany3">心聚坊 HeartHub Studio</span> 所有；未經授權請勿重製。</li>
+          <li><b>聯絡窗口</b>：<span id="pcontact">support@example.com</span></li>
+        </ol>
+      </div>
+      <div class="pfooter"><span id="footLeft3"></span><span style="float:right">第 3 / 3 頁</span></div>
     </section>
   </div>
 
@@ -225,7 +261,7 @@ function hexToRgba(hex,a){const h=hex.replace('#','');const n=parseInt(h,16);con
 
 /* ---------- 狀態 ---------- */
 const state = {
-  tab:'lite',
+  tab:'pro', /* 預設 Pro，方便你測試圖 */
   indicators:{stable:0.8, res:1.1, social:0.9, focus:0.6},
   radarFontPx:16,
   exports:{},
@@ -245,18 +281,18 @@ function indicatorsToPlutchik(ind){
   return {
     "Joy(快樂)": (social + res)/2,
     "Trust(信任)": social,
-    "Fear(恐懼)": clamp(1.5 - stable, 0, 1.5),
+    "Fear(恐懼)": Math.max(0, Math.min(1.5, 1.5 - stable)),
     "Surprise(驚訝)": 0.5 + (focus/2),
-    "Sadness(悲傷)": clamp(1.5 - res, 0, 1.5),
-    "Disgust(厭惡)": clamp(1.5 - social, 0, 1.5),
-    "Anger(憤怒)": clamp(1.5 - focus, 0, 1.5),
+    "Sadness(悲傷)": Math.max(0, Math.min(1.5, 1.5 - res)),
+    "Disgust(厭惡)": Math.max(0, Math.min(1.5, 1.5 - social)),
+    "Anger(憤怒)": Math.max(0, Math.min(1.5, 1.5 - focus)),
     "Anticipation(期待)": (focus + stable)/2
   };
 }
 
-/* ---------- 高可靠雷達圖（修正累積 scale） ---------- */
+/* ---------- 高可靠雷達圖（避免 scale 累積） ---------- */
 function drawRadar(canvas, labels, datasets, options={}){
-  // 用 CSS 寬高避免舊屬性干擾
+  // 以 CSS 尺寸為基準（含 print 情境）
   const cssW = canvas.clientWidth || 1000;
   const cssH = canvas.clientHeight || 600;
   const dpr = options.forceDPR || window.devicePixelRatio || 1;
@@ -288,19 +324,18 @@ function drawRadar(canvas, labels, datasets, options={}){
     ctx.beginPath();
     for(let k=0;k<labels.length;k++){
       const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
-      const x = cx + rr*Math.cos(ang);
-      const y = cy + rr*Math.sin(ang);
+      const x = cx + rr*Math.cos(ang), y = cy + rr*Math.sin(ang);
       if(k===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
     }
     ctx.closePath(); ctx.stroke();
   }
+  // 軸與標籤
   const fontPx = options.fontPx || 16;
   ctx.fillStyle = getComputedStyle(document.body).color || '#111';
   ctx.font = `500 ${fontPx}px system-ui, -apple-system, Segoe UI, Roboto, Noto Sans TC, Arial`;
   labels.forEach((lab,k)=>{
     const ang = (Math.PI*2/labels.length)*k - Math.PI/2;
-    const x = cx + (r+14)*Math.cos(ang);
-    const y = cy + (r+14)*Math.sin(ang);
+    const x = cx + (r+14)*Math.cos(ang), y = cy + (r+14)*Math.sin(ang);
     ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(cx + r*Math.cos(ang), cy + r*Math.sin(ang)); ctx.stroke();
     ctx.textAlign = Math.cos(ang)>0.2 ? "left" : (Math.cos(ang)<-0.2 ? "right" : "center");
     ctx.textBaseline = Math.sin(ang)>0.2 ? "top" : (Math.sin(ang)<-0.2 ? "bottom" : "middle");
@@ -339,7 +374,7 @@ function drawRadar(canvas, labels, datasets, options={}){
   };
 }
 
-/* ---------- 渲染 ---------- */
+/* ---------- 渲染（頁面） ---------- */
 function kpiHTML(items){ return items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join(""); }
 function legendHTML(ds){ return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join(""); }
 
@@ -390,15 +425,13 @@ function render(){
   const dsPro=[{label:"行政部",color:"#59d1c5",values:[1.1,1.2,1.0,0.8],fill:.16},{label:"業務部",color:"#ffa07a",values:[0.6,0.7,0.5,0.6],fill:.10},{label:"研發部",color:"#7aa6ff",values:[0.9,1.0,0.8,0.7],fill:.10}];
   const dsEnt=[{label:"本年度均值",color:"#59d1c5",values:[0.9,1.2,1.0,0.7],fill:.18},{label:"產業常模",color:"#7aa6ff",values:[0.7,0.9,0.8,0.6],fill:.10}];
   const ds1 = state.tab==='lite'?dsLite: state.tab==='pro'?dsPro: dsEnt;
-  const ex1=drawRadar($("#radar1"),labels1,ds1,{rings:4,fontPx:state.radarFontPx,padding:70});
-  state.exports.radar1=ex1;
+  state.exports.radar1=drawRadar($("#radar1"),labels1,ds1,{rings:4,fontPx:state.radarFontPx,padding:70});
 
   // 雷達②
   const em=indicatorsToPlutchik(v);
   const labels2=Object.keys(em);
   const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
-  const ex2=drawRadar($("#radar2"),labels2,ds2,{rings:4,fontPx:state.radarFontPx,padding:80});
-  state.exports.radar2=ex2;
+  state.exports.radar2=drawRadar($("#radar2"),labels2,ds2,{rings:4,fontPx:state.radarFontPx,padding:80});
 
   $("#legend1").innerHTML=legendHTML(ds1);
   $("#legend2").innerHTML=legendHTML(ds2);
@@ -406,7 +439,7 @@ function render(){
 
 /* ---------- 事件 ---------- */
 document.addEventListener('DOMContentLoaded', ()=>{
-  // 預設今天
+  // 預設今天（方便 PDF 抬頭）
   const d = new Date();
   $("#rdate").value = d.toISOString().slice(0,10);
 
@@ -455,10 +488,16 @@ document.addEventListener('DOMContentLoaded', ()=>{
 
 /* ---------- 列印（PDF） ---------- */
 function preparePrintAndOpen(){
-  // 填入封面品牌資料
   const wrap=document.querySelector('.print-container');
   wrap.style.display='block';
 
+  // 抬頭左右角資訊
+  const dateNow = new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
+  $("#phLeft").textContent = dateNow; $("#phRight").textContent = '（正式版 PDF）';
+  $("#phLeft2").textContent = dateNow; $("#phRight2").textContent = '（正式版 PDF）';
+  $("#phLeft3").textContent = dateNow; $("#phRight3").textContent = '（正式版 PDF）';
+
+  // 填品牌資料
   $("#printTabName").textContent = state.tab==='lite'?'Lite（單場）': state.tab==='pro'?'Pro（季度）':'Enterprise（年度）';
   const dateText = state.brand.date || new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
   $("#printDate").textContent = dateText;
@@ -467,6 +506,9 @@ function preparePrintAndOpen(){
   $("#pcompany3").textContent = state.brand.company;
   $("#pproject").textContent = state.brand.project || '—';
   $("#pcontact").textContent = state.brand.contact;
+  $("#footLeft").textContent = location.href;
+  $("#footLeft2").textContent = location.href;
+  $("#footLeft3").textContent = location.href;
   document.documentElement.style.setProperty('--brand', state.brand.color);
 
   const logo = $("#plogo");
@@ -480,10 +522,12 @@ function preparePrintAndOpen(){
   // 封面 KPI
   $("#pkpis").innerHTML = $("#kpis").innerHTML;
 
-  // 高解析重畫兩張圖
-  const pr1=$("#pr1"), pr2=$("#pr2");
-  const fontPx=Math.max(18, state.radarFontPx+2);
+  // 讓 print 版雷達圖有明確 CSS 尺寸（A4 全寬）
+  $("#pr1").style.width = "185mm"; $("#pr1").style.height = "115mm";
+  $("#pr2").style.width = "185mm"; $("#pr2").style.height = "115mm";
 
+  // 高解析重畫
+  const fontPx=Math.max(18, state.radarFontPx+2);
   const labels1=["穩定度","壓力復原","社會連結","專注力"];
   const v=state.indicators;
   const dsLite=[{label:"本場 Δ",color:"#59d1c5",values:[v.stable,v.res,v.social,v.focus],fill:.18}];
@@ -491,16 +535,16 @@ function preparePrintAndOpen(){
   const dsEnt=[{label:"本年度均值",color:"#59d1c5",values:[0.9,1.2,1.0,0.7],fill:.18},{label:"產業常模",color:"#7aa6ff",values:[0.7,0.9,0.8,0.6],fill:.10}];
   const ds1 = state.tab==='lite'?dsLite: state.tab==='pro'?dsPro: dsEnt;
 
-  drawRadar(pr1,labels1,ds1,{rings:4,fontPx,padding:110,forceDPR:2});
+  drawRadar($("#pr1"),labels1,ds1,{rings:4,fontPx,padding:110,forceDPR:2});
   $("#pl1").innerHTML=legendHTML(ds1);
 
   const em=indicatorsToPlutchik(v);
   const labels2=Object.keys(em);
   const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
-  drawRadar(pr2,labels2,ds2,{rings:4,fontPx,padding:120,forceDPR:2});
+  drawRadar($("#pr2"),labels2,ds2,{rings:4,fontPx,padding:120,forceDPR:2});
   $("#pl2").innerHTML=legendHTML(ds2);
 
-  // 表格
+  // 表格（拷貝到 P3）
   $("#ptbl_title").textContent=$("#tbl_title").textContent;
   const tblClone=$("#tbl").cloneNode(true);
   tblClone.style.fontSize='13px'; tblClone.style.width='100%';

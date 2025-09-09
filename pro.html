@@ -86,6 +86,7 @@ const state = {
   exports:{}
 };
 
+/* --- 表單行為 --- */
 function buildDeptRows(){
   const n = Math.min(6, Math.max(1, parseInt($('#deptCount').value||3,10)));
   $('#deptCount').value=n;
@@ -106,12 +107,14 @@ function captureDeptRows(){
   }));
 }
 
+/* --- 指標平均（for 情緒雷達） --- */
 function indicatorsMean(){
   const mats = state.depts.map(d=>d.values);
   const mean = idx => mats.map(a=>a[idx]).reduce((x,y)=>x+y,0)/mats.length;
   return {stable:mean(0),res:mean(1),social:mean(2),focus:mean(3)};
 }
 
+/* --- 畫面渲染 --- */
 function render(){
   $('#kpis').innerHTML = kpiHTML([
     {l:"場次",v:String(state.kpi.sessions)},
@@ -124,18 +127,20 @@ function render(){
   $('#tbl').innerHTML = `<tr><th>部門</th><th>平均 Δ</th><th>熱門行動</th></tr>${rows}
   <tr><td colspan="3"><b>建議處方：</b>${listHTML(state.suggestions)}</td></tr>`;
 
-  // 雷達
+  // 雷達①：各部門四指標
   const labels1=["穩定度","壓力復原","社會連結","專注力"];
   const ds1 = state.depts.map((d,i)=>({label:d.name||`部門${i+1}`,color:pickColor(i),values:d.values,fill:.12}));
-  state.exports.radar1 = Common.drawRadar($('#radar1'),labels1,ds1,{padding:70});
+  state.exports.radar1 = drawRadar($('#radar1'),labels1,ds1,{padding:70});
   $('#legend1').innerHTML = legendHTML(ds1);
 
+  // 雷達②：情緒（用各部門平均投影）
   const em = indicatorsToPlutchik(indicatorsMean());
   const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
-  state.exports.radar2 = Common.drawRadar($('#radar2'),Object.keys(em),ds2,{padding:80});
+  state.exports.radar2 = drawRadar($('#radar2'),Object.keys(em),ds2,{padding:80});
   $('#legend2').innerHTML = legendHTML(ds2);
 }
 
+/* --- 事件 --- */
 $('#apply').addEventListener('click', ()=>{
   state.brand.company=$('#company').value||state.brand.company;
   state.brand.project=$('#project').value||'';
@@ -150,19 +155,45 @@ $('#apply').addEventListener('click', ()=>{
   state.kpi.learners=parseInt($('#learners').value||state.kpi.learners,10);
   state.kpi.avgDelta=$('#avgDelta').value||state.kpi.avgDelta;
   state.kpi.avgNPS=$('#avgNPS').value||state.kpi.avgNPS;
+
   captureDeptRows();
   state.suggestions = parseLines($('#suggestions').value);
   render();
 });
 
-$('#deptCount').addEventListener('change', ()=> buildDeptRows());
+$('#deptCount').addEventListener('change', buildDeptRows);
+
+/* --- 列印（改用 radar1/radar2 與 tableNode） --- */
 $('#print').addEventListener('click', ()=>{
-  const opts = {
-    suggestionsHTML: listHTML(state.suggestions),
-    radarPNGs:[ state.exports.radar1?.toPNG(2.0), state.exports.radar2?.toPNG(2.0) ],
-    legends:[ $('#legend1').innerHTML, $('#legend2').innerHTML ]
+  // radar1 設定：各部門四指標
+  const r1 = {
+    labels:["穩定度","壓力復原","社會連結","專注力"],
+    datasets: state.depts.map((d,i)=>({
+      label:d.name||`部門${i+1}`, color:pickColor(i), values:d.values, fill:.12
+    })),
+    options:{padding:110, fontPx:18}
   };
-  Common.printNow('pro', state.brand, $('#kpis').innerHTML, $('#tbl_title').textContent, $('#tbl').outerHTML, opts);
+  // radar2 設定：情緒投影（用平均）
+  const emo = indicatorsToPlutchik(indicatorsMean());
+  const r2 = {
+    labels:Object.keys(emo),
+    datasets:[{label:"情緒強度", color:"#7aa6ff", values:Object.values(emo), fill:.18}],
+    options:{padding:120, fontPx:18}
+  };
+
+  Common.printNow('pro',
+    state.brand,
+    $('#kpis').innerHTML,
+    $('#tbl_title').textContent,
+    null, // 不傳 tableHTML；改交 tableNode 給 common.js，避免 PDF 重複列
+    {
+      tableNode: $('#tbl'),
+      radar1: r1, radar2: r2,
+      legend1HTML: $('#legend1').innerHTML,
+      legend2HTML: $('#legend2').innerHTML,
+      suggestionsHTML: listHTML(state.suggestions)
+    }
+  );
 });
 
 document.addEventListener('DOMContentLoaded', ()=>{
@@ -170,5 +201,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
   buildDeptRows(); render();
 });
 </script>
+
 </body></html>
 

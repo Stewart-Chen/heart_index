@@ -46,6 +46,7 @@
   .input textarea{min-height:44px}
   .btn{padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--brand),#52d09b); color:#0a1320;font-weight:800;border:none;cursor:pointer}
   .btn.secondary{background:#ffffff14;color:var(--text);border:1px solid #ffffff24}
+  .btn.xs{padding:6px 10px;border-radius:8px;font-size:12px}
   canvas{width:100%;height:auto;max-height:460px;display:block}
   .legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
   .dot{width:10px;height:10px;border-radius:999px;display:inline-block;margin-right:6px}
@@ -82,6 +83,7 @@
   .mini{font-size:12px;color:var(--muted)}
   .cols{display:grid;grid-template-columns:repeat(4,minmax(120px,1fr));gap:10px}
   @media (max-width:900px){.cols{grid-template-columns:repeat(2,minmax(120px,1fr));}}
+  .line{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 </style>
 </head>
 <body>
@@ -129,17 +131,20 @@
 壓力真的有緩解</textarea></div>
       </div>
 
-      <div class="subhead">行動採納（72h）—輸入名稱與百分比</div>
-      <div class="row cols" id="lite_actions_wrap">
-        <!-- 動態插入 4 組：名稱 + % -->
+      <div class="line">
+        <div class="subhead" style="margin-right:auto">行動採納（72h）—輸入名稱與百分比</div>
+        <button type="button" class="btn xs" id="btnAddAction">+ 新增一項</button>
+      </div>
+      <div class="row" id="lite_actions_wrap" style="gap:10px;flex-direction:column">
+        <!-- 動態插入：名稱 + % + 刪除 -->
       </div>
 
-      <div class="subhead">關係圈擴散（採納擴散％）</div>
-      <div class="row cols">
-        <div class="input"><label>個人 %</label><input id="rip_personal" type="number" value="58"></div>
-        <div class="input"><label>家人 %</label><input id="rip_family" type="number" value="46"></div>
-        <div class="input"><label>同事 %</label><input id="rip_colleague" type="number" value="33"></div>
-        <div class="input"><label>社團 %</label><input id="rip_club" type="number" value="18"></div>
+      <div class="line">
+        <div class="subhead" style="margin-right:auto">關係圈擴散（輸入名稱與百分比）</div>
+        <button type="button" class="btn xs" id="btnAddRipple">+ 新增一項</button>
+      </div>
+      <div class="row" id="lite_ripple_wrap" style="gap:10px;flex-direction:column">
+        <!-- 動態插入：名稱 + % + 刪除 -->
       </div>
 
       <div class="subhead">下一步建議（每行一點）</div>
@@ -166,9 +171,7 @@
       <div class="row">
         <div class="input"><label>要比較幾個部門</label><input id="pro_dept_count" type="number" min="1" max="6" value="3"></div>
       </div>
-      <div id="pro_depts" class="row" style="gap:14px;flex-direction:column">
-        <!-- 動態產生部門輸入組 -->
-      </div>
+      <div id="pro_depts" class="row" style="gap:14px;flex-direction:column"></div>
 
       <div class="subhead">建議處方（每行一點）</div>
       <div class="row">
@@ -213,7 +216,6 @@
       <section class="card">
         <h2 id="title">Lite 成效報告</h2>
         <h3 class="muted" id="subtitle">單場即時｜課前 vs 課後 Δ</h3>
-
         <div class="kpis" id="kpis"></div>
       </section>
 
@@ -342,15 +344,17 @@ const parseFour = (txt,def=[0,0,0,0])=>{
   return m.length===4?m:def;
 };
 const padRight = (s,len)=> (s + ' '.repeat(Math.max(0,len - s.length))).slice(0,len);
-function barLine(name, pct, width=10){
-  const p=clamp(parseInt(pct,10)||0,0,100);
-  const blocks = Math.round(p/100*width);
-  const bar = '█'.repeat(blocks).padEnd(width, ' ');
-  return `${padRight(name,8)} ${bar} ${p}%`;
+function barLines(items, width=10){
+  if(!items || !items.length) return '（尚未填寫）';
+  const maxName = clamp(Math.max(...items.map(x=> (x.name||'').length)),6,12);
+  return items.map(x=>{
+    const p=clamp(parseInt(x.pct,10)||0,0,100);
+    const blocks=Math.round(p/100*width);
+    const bar='█'.repeat(blocks).padEnd(width,' ');
+    return `${padRight(x.name||'—',maxName)}  ${bar} ${p}%`;
+  }).join('\n');
 }
-function listHTML(lines){
-  return lines.length? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${s}</li>`).join('')}</ul>` : '（尚未填寫）';
-}
+function listHTML(lines){ return lines.length? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${s}</li>`).join('')}</ul>` : '（尚未填寫）'; }
 
 /* ---------- 狀態 ---------- */
 const state = {
@@ -367,7 +371,12 @@ const state = {
       {name:'藝術塗鴉', pct:38},
       {name:'感謝同事', pct:22}
     ],
-    ripple:{personal:58,family:46,colleague:33,club:18},
+    ripple:[
+      {name:'個人', pct:58},
+      {name:'家人', pct:46},
+      {name:'同事', pct:33},
+      {name:'社團', pct:18}
+    ],
     next:['下載「家庭挑戰包」','老師優化教學清晰度（平均 4.3/5）','企業導入季度方案']
   },
   pro:{
@@ -479,51 +488,53 @@ function drawRadar(canvas, labels, datasets, options={}){
   };
 }
 
-/* ---------- Lite：行動採納輸入欄位 ---------- */
+/* ---------- Lite：動態輸入（行動採納 / 擴散） ---------- */
 function renderLiteActionsInputs(){
   const wrap=$("#lite_actions_wrap");
   wrap.innerHTML='';
-  const items = state.lite.actions;
-  items.forEach((it,idx)=>{
-    const box=document.createElement('div'); box.className='input';
-    box.innerHTML=`
-      <label>項目 ${idx+1}</label>
-      <input data-k="name" value="${it.name}">
-      <input data-k="pct" type="number" min="0" max="100" value="${it.pct}">
-    `;
-    wrap.appendChild(box);
-  });
-}
-
-/* ---------- Pro：部門輸入欄位 ---------- */
-function buildProDeptInputs(count){
-  // 先補齊/裁切 state
-  const cur=state.pro.depts.slice(0,count);
-  while(cur.length<count){
-    cur.push({name:`部門${cur.length+1}`, values:[0.8,0.9,0.8,0.7], hot:'—'});
-  }
-  state.pro.depts=cur;
-
-  // 繪製
-  const hold=$("#pro_depts");
-  hold.innerHTML='';
-  state.pro.depts.forEach((d,i)=>{
-    const row=document.createElement('div');
-    row.className='row dept-row';
-    row.dataset.idx=i;
-    row.style.border='1px dashed #ffffff24';
-    row.style.borderRadius='10px';
-    row.style.padding='10px';
+  state.lite.actions.forEach((it,idx)=>{
+    const row=document.createElement('div'); row.className='row'; row.style.alignItems='center';
     row.innerHTML=`
-      <div class="input"><label>部門名稱</label><input data-role="name" value="${d.name}"></div>
-      <div class="input"><label>Δ 值（4 項）</label><input data-role="values" value="${d.values.join(',')}"></div>
-      <div class="input"><label>熱門行動</label><input data-role="hot" value="${d.hot}"></div>
+      <div class="input"><label>名稱</label><input data-k="name" value="${it.name}"></div>
+      <div class="input"><label>%</label><input data-k="pct" type="number" min="0" max="100" value="${it.pct}"></div>
+      <button type="button" class="btn secondary xs" data-action="del-action" data-idx="${idx}">刪除</button>
     `;
-    hold.appendChild(row);
+    wrap.appendChild(row);
+  });
+}
+function renderLiteRippleInputs(){
+  const wrap=$("#lite_ripple_wrap");
+  wrap.innerHTML='';
+  state.lite.ripple.forEach((it,idx)=>{
+    const row=document.createElement('div'); row.className='row'; row.style.alignItems='center';
+    row.innerHTML=`
+      <div class="input"><label>名稱</label><input data-k="name" value="${it.name}"></div>
+      <div class="input"><label>%</label><input data-k="pct" type="number" min="0" max="100" value="${it.pct}"></div>
+      <button type="button" class="btn secondary xs" data-action="del-ripple" data-idx="${idx}">刪除</button>
+    `;
+    wrap.appendChild(row);
+  });
+}
+function captureActionsFromDOM(){
+  const rows=$$("#lite_actions_wrap .row");
+  state.lite.actions = rows.map(r=>{
+    return {
+      name: r.querySelector('input[data-k="name"]').value.trim()||'—',
+      pct:  parseInt(r.querySelector('input[data-k="pct"]').value||0,10)
+    };
+  });
+}
+function captureRippleFromDOM(){
+  const rows=$$("#lite_ripple_wrap .row");
+  state.lite.ripple = rows.map(r=>{
+    return {
+      name: r.querySelector('input[data-k="name"]').value.trim()||'—',
+      pct:  parseInt(r.querySelector('input[data-k="pct"]').value||0,10)
+    };
   });
 }
 
-/* ---------- 頁面渲染 ---------- */
+/* ---------- 主畫面渲染 ---------- */
 function kpiHTML(items){return items.map(x=>`<div class="kpi"><div class="v">${x.v}</div><div class="l">${x.l}</div></div>`).join("")}
 function legendHTML(ds){return ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join("")}
 
@@ -541,17 +552,8 @@ function render(){
     ]);
     tt.textContent="Lite｜重點表";
 
-    // 行動採納條形
-    const actLines = state.lite.actions.map(a=>barLine(a.name,a.pct,10)).join('\n');
-    // 關係圈擴散條形
-    const r=state.lite.ripple;
-    const ripLines = [
-      barLine('個人',r.personal,10),
-      barLine('家人',r.family,10),
-      barLine('同事',r.colleague,10),
-      barLine('社團',r.club,10)
-    ].join('\n');
-
+    const actLines = barLines(state.lite.actions,10);
+    const ripLines = barLines(state.lite.ripple,10);
     const quotes = state.lite.quotes.length? state.lite.quotes.map(s=>`「${s}」`).join('、') : '（尚未填寫）';
     const nextHTML = listHTML(state.lite.next);
 
@@ -560,6 +562,10 @@ function render(){
       <tr><td>行動採納（72h）</td><td class="mono">${actLines}</td></tr>
       <tr><td>關係圈擴散</td><td class="mono">${ripLines}</td></tr>
       <tr><td>下一步建議</td><td>${nextHTML}</td></tr>`;
+
+    // 顯示動態欄位
+    renderLiteActionsInputs();
+    renderLiteRippleInputs();
   }
   else if(state.tab==='pro'){
     t.textContent="Pro 季度報告"; st.textContent="季度趨勢｜部門比較";
@@ -627,12 +633,35 @@ function render(){
   const ds2=[{label:"情緒強度",color:"#7aa6ff",values:Object.values(em),fill:.18}];
   state.exports.radar2=drawRadar($("#radar2"),labels2,ds2,{rings:4,fontPx:state.radarFontPx,padding:80});
   $("#legend2").innerHTML=legendHTML(ds2);
-
-  // Lite 動態輸入區若在顯示狀態，確保欄位存在
-  if(state.tab==='lite') renderLiteActionsInputs();
 }
 
-/* ---------- 事件：面板切換與套用 ---------- */
+/* ---------- Pro：部門輸入欄位 ---------- */
+function buildProDeptInputs(count){
+  const cur=state.pro.depts.slice(0,count);
+  while(cur.length<count){
+    cur.push({name:`部門${cur.length+1}`, values:[0.8,0.9,0.8,0.7], hot:'—'});
+  }
+  state.pro.depts=cur;
+
+  const hold=$("#pro_depts");
+  hold.innerHTML='';
+  state.pro.depts.forEach((d,i)=>{
+    const row=document.createElement('div');
+    row.className='row dept-row';
+    row.dataset.idx=i;
+    row.style.border='1px dashed #ffffff24';
+    row.style.borderRadius='10px';
+    row.style.padding='10px';
+    row.innerHTML=`
+      <div class="input"><label>部門名稱</label><input data-role="name" value="${d.name}"></div>
+      <div class="input"><label>Δ 值（四項, 逗點分隔）</label><input data-role="values" value="${d.values.join(',')}"></div>
+      <div class="input"><label>熱門行動</label><input data-role="hot" value="${d.hot}"></div>
+    `;
+    hold.appendChild(row);
+  });
+}
+
+/* ---------- 事件 ---------- */
 function showPanel(){
   $$('.panel').forEach(p=>p.classList.remove('active'));
   $('#panel-'+(state.tab==='ent'?'ent':state.tab)).classList.add('active');
@@ -640,10 +669,42 @@ function showPanel(){
 document.addEventListener('DOMContentLoaded', ()=>{
   $("#rdate").value = new Date().toISOString().slice(0,10);
 
-  // 製作 Lite 行動採納欄位
+  // Lite：渲染初始動態列
   renderLiteActionsInputs();
+  renderLiteRippleInputs();
 
-  // 製作 Pro 部門欄位
+  // Lite：新增 / 刪除（事件委派，操作前先捕捉目前欄位內容以免輸入遺失）
+  $("#btnAddAction").addEventListener('click', ()=>{
+    captureActionsFromDOM();
+    state.lite.actions.push({name:`項目${state.lite.actions.length+1}`, pct:0});
+    renderLiteActionsInputs();
+  });
+  $("#lite_actions_wrap").addEventListener('click', (e)=>{
+    const btn=e.target.closest('[data-action="del-action"]');
+    if(btn){
+      captureActionsFromDOM();
+      const idx=parseInt(btn.dataset.idx,10);
+      state.lite.actions.splice(idx,1);
+      renderLiteActionsInputs();
+    }
+  });
+
+  $("#btnAddRipple").addEventListener('click', ()=>{
+    captureRippleFromDOM();
+    state.lite.ripple.push({name:`關係${state.lite.ripple.length+1}`, pct:0});
+    renderLiteRippleInputs();
+  });
+  $("#lite_ripple_wrap").addEventListener('click', (e)=>{
+    const btn=e.target.closest('[data-action="del-ripple"]');
+    if(btn){
+      captureRippleFromDOM();
+      const idx=parseInt(btn.dataset.idx,10);
+      state.lite.ripple.splice(idx,1);
+      renderLiteRippleInputs();
+    }
+  });
+
+  // Pro：部門數量
   buildProDeptInputs(3);
   $("#pro_dept_count").addEventListener('change', ()=>{
     const n = clamp(parseInt($("#pro_dept_count").value||3,10),1,6);
@@ -651,6 +712,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     buildProDeptInputs(n);
   });
 
+  // 分頁切換
   $$('.tab').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       $$('.tab').forEach(b=>b.classList.remove('active'));
@@ -660,6 +722,7 @@ document.addEventListener('DOMContentLoaded', ()=>{
     });
   });
 
+  // 套用：收集所有欄位 → state → render
   $("#btnApplyBrand").addEventListener('click', ()=>{
     // 品牌
     state.brand.company=$("#company").value||state.brand.company;
@@ -683,17 +746,8 @@ document.addEventListener('DOMContentLoaded', ()=>{
     state.lite.kpi.learners=parseInt($("#lite_learners").value||state.lite.kpi.learners,10);
     state.lite.quotes=parseLines($("#lite_quotes").value);
     state.lite.next = parseLines($("#lite_next").value);
-    // 行動採納
-    const boxes = $$("#lite_actions_wrap .input");
-    state.lite.actions = boxes.map(b=>{
-      return { name: b.querySelector('input[data-k="name"]').value.trim()||'—',
-               pct: parseInt(b.querySelector('input[data-k="pct"]').value||0,10) };
-    });
-    // 關係圈擴散
-    state.lite.ripple.personal = parseInt($("#rip_personal").value||state.lite.ripple.personal,10);
-    state.lite.ripple.family   = parseInt($("#rip_family").value||state.lite.ripple.family,10);
-    state.lite.ripple.colleague= parseInt($("#rip_colleague").value||state.lite.ripple.colleague,10);
-    state.lite.ripple.club     = parseInt($("#rip_club").value||state.lite.ripple.club,10);
+    captureActionsFromDOM();
+    captureRippleFromDOM();
 
     // Pro
     state.pro.kpi.sessions=parseInt($("#pro_sessions").value||state.pro.kpi.sessions,10);
@@ -735,7 +789,6 @@ function legendHTMLFrom(node){
   if(!node) return '';
   return Array.from(node.querySelectorAll('span')).map(s=>s.outerHTML).join('');
 }
-
 function preparePrintAndOpen(){
   const wrap=$('.print-container'); wrap.style.display='block';
 
@@ -786,18 +839,15 @@ function preparePrintAndOpen(){
     ]);
   }
 
-  // 第 3 頁：標題切換（Lite：下一步建議；Pro：建議處方；Ent：年度建議）
+  // 第 3 頁：段落標題依分頁
   $("#pSugTitle").textContent = state.tab==='lite' ? '下一步建議' : (state.tab==='pro' ? '建議處方' : '年度建議');
 
   // 建議 / 語錄 / 行動採納 / 擴散 / ROI / 年度建議
   if(state.tab==='lite'){
     $("#psuggest").innerHTML = listHTML(state.lite.next);
     $("#pquotes").innerHTML = state.lite.quotes.length? `<ul style="margin:0;padding-left:18px">${state.lite.quotes.map(s=>`<li>「${s}」</li>`).join('')}</ul>`:'（尚未填寫）';
-    const actLines = state.lite.actions.map(a=>barLine(a.name,a.pct,10)).join('\n');
-    const r=state.lite.ripple;
-    const ripLines = [barLine('個人',r.personal,10),barLine('家人',r.family,10),barLine('同事',r.colleague,10),barLine('社團',r.club,10)].join('\n');
-    $("#pactions").textContent = actLines;
-    $("#pripple").textContent = ripLines;
+    $("#pactions").textContent = barLines(state.lite.actions,10);
+    $("#pripple").textContent = barLines(state.lite.ripple,10);
     $("#pquoteTitle").style.display='block'; $("#pquotes").style.display='block';
     $("#pactTitle").style.display='block'; $("#pactions").style.display='block';
     $("#pripTitle").style.display='block'; $("#pripple").style.display='block';

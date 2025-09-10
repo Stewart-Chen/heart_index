@@ -1082,9 +1082,9 @@ function preparePrintAndOpen(){
   
     // 示意條：把不同指標轉成 0~100 的相對達標度
     const demoBars = [
-      { name:'平均 Δ（參考 0.6／顯著 ≥1.0）', pct: Math.round(clamp(avgDelta/1.0, 0, 1)*100) },
+      { name:'平均 Δ', pct: Math.round(clamp(avgDelta/1.0, 0, 1)*100) },
       { name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },
-      { name:'NPS（範圍 -100～+100）',          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }
+      { name:'NPS',          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }
     ];
   
     // —— DOM 位置保險：放在 cover-grid 之後且置中顯示 —— //
@@ -1102,7 +1102,7 @@ function preparePrintAndOpen(){
     // —— 內容：定義 → 晶片 → 分隔線 → 示意條 —— //
     const htmlDef = `
       <div class="small">
-        <div><b>平均 Δ</b>：四指標（穩定度／壓力復原／社會連結／專注力）課後 − 課前的平均改變幅度；&gt;0 為改善，約 <b>0.6</b> 為中等、<b>&ge;1.0</b> 視為顯著。</div>
+        <div><b>平均 Δ</b>：四指標課後 − 課前的平均改變幅度；&gt;0 為改善，約 <b>0.6</b> 為中等、<b>&ge;1.0</b> 視為顯著。</div>
         <div><b>72h 維持率</b>：課後 72 小時內，能持續嘗試或維持練習之學員比例（%）。</div>
         <div><b>NPS</b>：淨推薦分數（-100～+100）；<b>&ge;50</b> 良好、<b>&ge;70</b> 卓越。</div>
       </div>`;

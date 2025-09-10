@@ -88,8 +88,10 @@
   @page{ size:A4; margin:10mm }
   body{ background:#fff; color:#000 }
   header, #webOnly{ display:none !important }
-  body * { visibility:hidden }
-  .print-container, .print-container * { visibility:visible }
+  //body * { visibility:hidden }
+  //.print-container, .print-container * { visibility:visible }
+
+  
   .print-container{
     position:absolute; inset:0; width:100%;
     -webkit-print-color-adjust:exact; print-color-adjust:exact;
@@ -268,6 +270,13 @@
   .bartrack.signed::after{ background:#dfe6fb; }
   .barfill-pos{ background: linear-gradient(90deg,var(--brand),#36c6b4); }
   .barfill-neg{ background: linear-gradient(90deg,#f7b8b8,#ef7676); }
+
+    header, #webOnly, main, footer { display: none !important; }
+    .print-container{ 
+      display: block !important; 
+      position: static !important; /* 避免絕對定位在手機上被忽略 */
+    }
+    html, body{ height:auto !important; overflow:visible !important; }
 }
 
 </style>

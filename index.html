@@ -11,7 +11,7 @@
     --brand:#1bb1c9;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#0b2046; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
+    :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#5b6f93; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
   }
   *{box-sizing:border-box}
   body{
@@ -1197,7 +1197,7 @@ function preparePrintAndOpen(){
     // —— 內容：定義 → 晶片 → 分隔線 → 示意條 —— //
     const htmlDef = `
       <div class="small">
-        <div><b>平均 Δ</b>：四指標課後 − 課前的平均改變幅度；&gt;0 為改善，約 <b>0.6</b> 為中等、<b>&ge;1.0</b> 視為顯著。</div>
+        <div><b>平均 Δ</b>：四項指標的「課後 − 課前」平均差；範圍 <b>&minus;4～+4</b>。正值＝提升，負值＝下降；<b> +0.6</b> 為中等提升，<b>&ge; +1.0</b> 視為顯著提升。</div>
         <div><b>72h 維持率</b>：課後 72 小時內，能持續嘗試或維持練習之學員比例（%）。</div>
         <div><b>NPS</b>：淨推薦分數（-100～+100）；<b>&ge;50</b> 良好、<b>&ge;70</b> 卓越。</div>
       </div>`;

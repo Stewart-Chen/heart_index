@@ -13,10 +13,20 @@
   @media (prefers-color-scheme: light){
     :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#5b6f93; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
   }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#0b1320;
+      --card:#121a2b;
+      --text:#eaf2ff;
+      --muted:#9bb0d3;
+      --accent:#59d1c5; --accent-2:#7aa6ff; --grid:#24314d;
+    }
+  }
   *{box-sizing:border-box}
   body{
     margin:0; font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Noto Sans TC,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji";
     background:var(--bg);
+    color: var(--text);
   }
   header{
     padding:24px 18px; display:flex; flex-wrap:wrap; align-items:flex-start; gap:16px;

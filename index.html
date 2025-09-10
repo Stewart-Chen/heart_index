@@ -1013,9 +1013,9 @@ function preparePrintAndOpen(){
   (function injectPhLogo(){
     const logoHTML = `<img class="ph-logo" src="img/logo-cute2.png" alt="logo">`;
     const titleText = '心聚坊 HeartHub Studio';
-    $("#phRight").textContent = `${logoHTML}${esc(titleText)}`;
-    $("#phRight2").textContent = `${logoHTML}${esc(titleText)}`;
-    $("#phRight3").textContent = `${logoHTML}${esc(titleText)}`;
+    $("#phRight").innerHTML = `${logoHTML}${esc(titleText)}`;
+    $("#phRight2").innerHTML = `${logoHTML}${esc(titleText)}`;
+    $("#phRight3").innerHTML = `${logoHTML}${esc(titleText)}`;
   })();
 
   $("#printDate").textContent = state.brand.date||new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});

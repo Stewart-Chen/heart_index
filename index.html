@@ -181,6 +181,21 @@
   }
   #p1 .kpi-rail .kpi .v{ font-size:17px; font-weight:800; color:#000 } /* 以後面為主 */
   #p1 .kpi-rail .kpi .l{ font-size:10.5px; color:#667 }
+
+  #p1ExpTitle, #p1Exp{
+    grid-column: 1 / -1;   /* ← 就算被放在 cover-grid 裡也會跨兩欄 */
+    display:block;
+  }
+  #p1ExpTitle{
+    text-align:center;      /* 標題置中 */
+    margin-top:4mm;         /* 與上方封面區塊留白 */
+  }
+  #p1Exp{
+    max-width:150mm;        /* 內容卡片不要過寬，視覺更集中 */
+    margin: 2mm auto 0;     /* 置中 */
+  }
+  /* 讓封面示意條跟印刷風格一致（標籤欄寬適中） */
+  #p1Exp .barlist{ --label:28mm; }
 }
 
 </style>
@@ -1001,6 +1016,19 @@ function preparePrintAndOpen(){
       {l:"平均 Δ",v:state.ent.kpi.avgDelta},
       {l:"NPS 年均",v:state.ent.kpi.npsYear}
     ]);
+  }
+
+  // 確保「指標說明與示意」在 cover-grid 之後，而且位於 #p1 的直系子層
+  const p1 = document.getElementById('p1');
+  const grid = document.querySelector('#p1 .cover-grid');
+  const expTitle = document.getElementById('p1ExpTitle');
+  const expCard  = document.getElementById('p1Exp');
+  if (p1 && grid && expTitle && expCard){
+    p1.insertBefore(expTitle, grid.nextSibling);
+    p1.insertBefore(expCard,  expTitle.nextSibling);
+    // 顯示（避免被之前的分頁邏輯隱藏）
+    expTitle.style.display = 'block';
+    expCard.style.display  = 'block';
   }
 
   if (state.tab === 'lite') {

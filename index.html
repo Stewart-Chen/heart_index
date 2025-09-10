@@ -288,6 +288,29 @@
       position: static !important; /* 避免絕對定位在手機上被忽略 */
     }
     html, body{ height:auto !important; overflow:visible !important; }
+
+  /* ① 標題與卡片同寬、置中 → 左側色條就會與卡片左緣對齊 */
+  #p1ExpTitle,
+  #p1Exp{
+    max-width: 178mm;              /* 比原本更寬一點，條也會更長 */
+    margin-left: auto;
+    margin-right: auto;
+  }
+  #p1ExpTitle{                      /* 與上方留白可微調 */
+    margin-top: 10mm !important;
+    margin-bottom: 2mm;
+  }
+
+  /* ② 封面長條圖置中＋加長＋右欄變寬，避免 Δ +0.85 斷行 */
+  #p1Exp .barlist{
+    width: 100%;                    /* 吃滿卡片內文寬度（= 更長） */
+    max-width: none;                /* 取消舊的限制，保證能撐滿 */
+    --label: 42mm;                  /* 左側標籤欄寬，可再調 */
+    --value: 28mm;                  /* 右側數字欄寬，放得下 'Δ +0.85' */
+    margin: 1.6mm auto 0;           /* 置中 */
+  }
+  #p1Exp .bartrack{ height: 12px; } /* 條身略厚，看起來更穩 */
+  .barpct{ white-space: nowrap; }   /* 右側數字不換行 */
 }
 
 </style>

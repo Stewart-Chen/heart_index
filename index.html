@@ -405,7 +405,7 @@
   <div class="print-container" style="display:none">
     <!-- P1 封面 + KPI -->
     <section class="page" id="p1">
-      <div class="ph"><span id="phLeft"></span><span></span><span id="phRight"></span></div>
+      <div class="ph"><span id="phLeft"></span>心聚指標報告<span></span><span id="phRight"></span></div>
     
       <div class="cover-grid">
         <!-- 左欄：品牌 + 標題 -->
@@ -1006,19 +1006,16 @@ function preparePrintAndOpen(){
   const wrap=$('.print-container'); wrap.style.display='block';
 
   const nowStr=new Date().toLocaleString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'});
-  $("#phLeft").textContent=nowStr; $("#phRight").textContent='（正式版 PDF）';
-  $("#phLeft2").textContent=nowStr; $("#phRight2").textContent='（正式版 PDF）';
-  $("#phLeft3").textContent=nowStr; $("#phRight3").textContent='（正式版 PDF）';
+  $("#phLeft").textContent=nowStr;
+  $("#phLeft2").textContent=nowStr;
+  $("#phLeft3").textContent=nowStr;
 
-  // 把 Logo 插到封面標題（心聚指標報告）前
   (function injectPhLogo(){
-    const middle = document.querySelector('#p1 .ph span:nth-child(2)'); // 封面中間那個 <span>
-    if (!middle) return;
-  
-    const hasURL = !!(state.brand.logoUrl && state.brand.logoUrl.trim());
     const logoHTML = `<img class="ph-logo" src="img/logo-cute2.png" alt="logo">`;
     const titleText = '心聚坊 HeartHub Studio';
-    middle.innerHTML = `${logoHTML}${esc(titleText)}`;
+    $("#phRight").textContent = `${logoHTML}${esc(titleText)}`;
+    $("#phRight2").textContent = `${logoHTML}${esc(titleText)}`;
+    $("#phRight3").textContent = `${logoHTML}${esc(titleText)}`;
   })();
 
   $("#printDate").textContent = state.brand.date||new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});

@@ -1229,7 +1229,8 @@ function preparePrintAndOpen(){
       <div class="divider"></div>
       ${barsHTMLSigned(deltaSigned, {min:-4, max:4, label:'Δ'})}
       ${barsHTML(demoBars)}
-      <div class="mini" style="margin-top:2mm">平均 Δ 以雙向條呈現（中線=0，範圍 -4～+4）；其餘指標為 0～100% 單向示意。</div>`;
+      <div class="mini" style="margin-top:2mm">平均 Δ 以雙向長條顯示：中線為 0（左降右升）；其餘指標以 0～100% 的單向長條顯示。
+    </div>`;
   
     document.getElementById('p1ExpTitle').textContent = '指標說明與示意';
     document.getElementById('p1Exp').innerHTML = htmlDef + htmlChips + htmlBars;

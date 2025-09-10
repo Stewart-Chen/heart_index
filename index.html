@@ -11,7 +11,7 @@
     --brand:#1bb1c9;
   }
   @media (prefers-color-scheme: light){
-    :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#5b6f93; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
+    :root{ --bg:#f6f9ff; --card:#ffffff; --muted:#0b2046; --text:#0c1b34; --accent:#00b8a9; --accent-2:#3a6cf0; --grid:#e5ecfa; }
   }
   *{box-sizing:border-box}
   body{
@@ -217,14 +217,6 @@
     max-width:170mm;        /* 內容卡片不要過寬，視覺更集中 */
     margin: 0 auto;     /* 置中 */
   }
-  /* 封面長條圖：置中 + 更長 + 右欄變寬 + 條身加厚 */
-  #p1Exp .barlist{
-    --label: 32mm;                /* 左側標籤欄寬（可微調） */
-    --value: 22mm;                /* 右側數字欄寬，足夠容納 "Δ +0.85" */
-    //max-width: 166mm;             /* 讓整組條圖自身也置中 */
-   // margin: 1.6mm auto 0;         /* 置中 */
-  }
-
 
   /* 確保封面上方區塊與說明區有充分留白 */
   #p1 .cover-grid{ margin-bottom: 8mm !important; }
@@ -261,8 +253,6 @@
     height:1px; background:#eaeaea; margin: 2.5mm 0 2.5mm;
   }
 
-  /* 示意長條：讓標籤欄寬更舒適 */
-  #p1Exp .barlist{ --label: 36mm; }
   #p1Exp .bartrack{ height: 12px; }   /* 條身略厚，看起來更穩 */
 
   /* 封面標頭中的小 Logo */
@@ -305,8 +295,8 @@
   #p1Exp .barlist{
     width: 100%;                    /* 吃滿卡片內文寬度（= 更長） */
     max-width: none;                /* 取消舊的限制，保證能撐滿 */
-    --label: 32mm;                  /* 左側標籤欄寬，可再調 */
-    --value: 22mm;                  /* 右側數字欄寬，放得下 'Δ +0.85' */
+    --label: 28mm;                  /* 左側標籤欄寬，可再調 */
+    --value: 20mm;                  /* 右側數字欄寬，放得下 'Δ +0.85' */
     margin: 1.6mm auto 0;           /* 置中 */
   }
   #p1Exp .bartrack{ height: 12px; } /* 條身略厚，看起來更穩 */
@@ -319,7 +309,7 @@
   <!-- 頁首＋控制面板 -->
   <header class="wrap" id="webOnly">
     <div class="logo"><span class="mark"></span> <span id="brandName">心聚坊 HeartHub Studio</span></div>
-    <span class="pill">心聚坊 HeartHub Studio - 心聚指標報告</span>
+    <span class="pill">心聚指標報告</span>
     <div style="flex:1"></div>
     <button class="tab active" data-tab="lite">Lite</button>
     <button class="tab" data-tab="pro">Pro</button>
@@ -1022,7 +1012,6 @@ document.addEventListener('DOMContentLoaded', ()=>{
     state.brand.contact=$("#contactEmail").value||state.brand.contact;
     state.radarFontPx=clamp(parseInt($("#fontPx").value||16,10),10,28);
     document.documentElement.style.setProperty('--brand', state.brand.color);
-    $("#brandName").textContent=state.brand.company;
     $("#footBrand").textContent=state.brand.company;
 
     // Lite

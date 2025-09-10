@@ -329,13 +329,13 @@
 
     <section class="grid" style="margin-top:18px">
       <section class="card">
-        <h2>雷達圖①｜心聚四指標</h2>
+        <h2>心聚四指標</h2>
         <canvas id="radar1" data-role="radar"></canvas>
         <div class="legend" id="legend1"></div>
       </section>
 
       <section class="card">
-        <h2>雷達圖②｜Plutchik 八大情緒（由四指標投影）</h2>
+        <h2>Plutchik 八大情緒</h2>
         <canvas id="radar2" data-role="radar"></canvas>
         <div class="legend" id="legend2"></div>
       </section>
@@ -1046,8 +1046,9 @@ function preparePrintAndOpen(){
   // 圖：以 PNG 置入（固定尺寸）
   const png1 = state.exports.radar1?.toPNG(2.0);
   const png2 = state.exports.radar2?.toPNG(2.0);
+  const disclaimer = 'Plutchik 八大情緒為由四指標（穩定度／壓力復原／社會連結／專注力）經啟發式投影之視覺化摘要，僅供趨勢參考，非臨床評估。';
   $("#pl1").innerHTML = legendHTMLFrom($('#legend1'));
-  $("#pl2").innerHTML = legendHTMLFrom($('#legend2'));
+  $("#pl2").innerHTML = legendHTMLFrom($('#legend2')) + `<div style="margin-top:2mm">${esc(disclaimer)}</div>`;;
   const img1=$("#pr1img"), img2=$("#pr2img");
   let ready=0; const tryPrint=()=>{ if(++ready===2) window.print(); };
   img1.onload=tryPrint; img2.onload=tryPrint;

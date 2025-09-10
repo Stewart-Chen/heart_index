@@ -66,6 +66,22 @@
 
   footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
 
+  /* 螢幕＋PDF 共用：雙向長條（中線=0） */
+  .bartrack.signed{ position:relative }
+  .bartrack.signed::after{ /* 0 基線 */
+    content:''; position:absolute; left:50%; top:-1px; bottom:-1px; width:1px;
+    background: var(--track-b);
+  }
+  .barfill-pos, .barfill-neg{
+    position:absolute; height:100%;
+  }
+  .barfill-pos{ /* 正向：向右 */
+    left:50%; background: linear-gradient(90deg,var(--fill1),var(--fill2));
+  }
+  .barfill-neg{ /* 負向：向左（用溫和紅系或自行調整） */
+    right:50%; background: linear-gradient(90deg,#ffb3b3,#ff6b6b);
+  }
+  
 /* ====== 列印（PDF 美化）— 去重・以後面為主 ====== */
 @media print{
   /* 基本紙張與可見性 */
@@ -248,6 +264,10 @@
     border-radius: 1mm; margin-right: 2mm;
     background: linear-gradient(135deg, var(--brand), #52d09b);
   }
+
+  .bartrack.signed::after{ background:#dfe6fb; }
+  .barfill-pos{ background: linear-gradient(90deg,var(--brand),#36c6b4); }
+  .barfill-neg{ background: linear-gradient(90deg,#f7b8b8,#ef7676); }
 }
 
 </style>
@@ -524,6 +544,30 @@ function barsHTML(items){
     html += `<div class="barname">${esc(x.name||'—')}</div>
              <div class="bartrack"><div class="barfill" style="width:${p}%"></div></div>
              <div class="barpct">${p}%</div>`;
+  });
+  html += '</div>';
+  return html;
+}
+/* 雙向長條：items = [{ name, val }]; 預設範圍 -4 ～ +4 */
+function barsHTMLSigned(items, opt={min:-4, max:4, label:'Δ'}){
+  if(!items || !items.length) return '（尚未填寫）';
+  const min = Number.isFinite(opt.min)? opt.min : -4;
+  const max = Number.isFinite(opt.max)? opt.max :  4;
+  const spanPos = Math.max(1e-6, max);
+  const spanNeg = Math.max(1e-6, Math.abs(min));
+
+  let html = '<div class="barlist">';
+  items.forEach(x=>{
+    const v = Number(x.val)||0;
+    const pos = v>0 ? Math.min(Math.abs(v)/spanPos,1)*50 : 0; // 50% = 右半滿
+    const neg = v<0 ? Math.min(Math.abs(v)/spanNeg,1)*50 : 0; // 50% = 左半滿
+    const label = `${opt.label||'Δ'} ${v>=0?'+':''}${v.toFixed(2)}`;
+    html += `<div class="barname">${esc(x.name||'—')}</div>
+             <div class="bartrack signed">
+               <div class="barfill-neg" style="width:${neg}%"></div>
+               <div class="barfill-pos" style="width:${pos}%"></div>
+             </div>
+             <div class="barpct">${esc(label)}</div>`;
   });
   html += '</div>';
   return html;
@@ -1098,10 +1142,10 @@ function preparePrintAndOpen(){
     const judgeDelta = (x)=> x>=1.0?'顯著提升':x>=0.6?'中等提升':x>0?'輕微提升':x===0?'無變化':'下降';
     const judgeHold  = (p)=> p>=80?'卓越':p>=60?'良好':p>=40?'普通':'偏低';
     const judgeNPS   = (n)=> n>=70?'卓越':n>=50?'良好':n>=0?'普通':'需改善';
-  
+
+    const deltaSigned = [{ name:'平均 Δ（-4～+4，雙向）', val: avgDelta }];
     // 示意條：把不同指標轉成 0~100 的相對達標度
     const demoBars = [
-      { name:'平均 Δ', pct: Math.round(clamp(avgDelta/1.0, 0, 1)*100) },
       { name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },
       { name:'NPS',          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }
     ];
@@ -1135,8 +1179,9 @@ function preparePrintAndOpen(){
   
     const htmlBars = `
       <div class="divider"></div>
+      ${barsHTMLSigned(deltaSigned, {min:-4, max:4, label:'Δ'})}
       ${barsHTML(demoBars)}
-      <div class="mini" style="margin-top:2mm">示意圖為「相對達標度」視覺：條長以參考門檻換算至 0–100%。</div>`;
+      <div class="mini" style="margin-top:2mm">平均 Δ 以雙向條呈現（中線=0，範圍 -4～+4）；其餘指標為 0～100% 單向示意。</div>`;
   
     document.getElementById('p1ExpTitle').textContent = '指標說明與示意（本場）';
     document.getElementById('p1Exp').innerHTML = htmlDef + htmlChips + htmlBars;

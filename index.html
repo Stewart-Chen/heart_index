@@ -413,7 +413,7 @@
       <div class="section-title" id="pquoteTitle" style="margin-top:5mm">學員一句話</div>
       <div class="pcard small" id="pquotes"></div>
 
-      <div class="section-title" id="pactTitle" style="margin-top:5mm">行動採納（72h）</div>
+      <div class="section-title" id="pactTitle" style="margin-top:5mm">行動意圖</div>
       <div class="pcard small" id="pactions"></div>
 
       <div class="section-title" id="pripTitle" style="margin-top:5mm">關係圈擴散</div>
@@ -1026,7 +1026,9 @@ function preparePrintAndOpen(){
     $("#pSugTitle").textContent='下一步建議';
     $("#psuggest").innerHTML = listHTML(state.lite.next);
     $("#pquotes").innerHTML = state.lite.quotes.length? `<ul style="margin:0;padding-left:18px">${state.lite.quotes.map(s=>`<li>「${esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）';
-    $("#pactions").innerHTML = barsHTML(state.lite.actions);
+    $("#pactTitle").textContent = '行動意圖';
+    const actNoteText = '願意在 72 小時內至少嘗試一次該行動之學員比例，屬意圖而非實際完成率。';
+    $("#pactions").innerHTML = `<div class="small" style="margin:0 0 2mm">${esc(actNoteText)}</div>` + barsHTML(state.lite.actions);
     $("#pripple").innerHTML = barsHTML(state.lite.ripple);
     show(['#pquoteTitle','#pquotes','#pactTitle','#pactions','#pripTitle','#pripple','#pSugTitle','#psuggest']);
     hide(['#proiTitle','#proi','#pplanTitle','#pplan']);

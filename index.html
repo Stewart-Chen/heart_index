@@ -235,6 +235,19 @@
 
   /* 示意長條：讓標籤欄寬更舒適 */
   #p1Exp .barlist{ --label: 36mm; }
+
+  /* 封面標頭中的小 Logo */
+  .ph .ph-logo{
+    width: 4.2mm; height: 4.2mm;
+    object-fit: contain; vertical-align: middle;
+    border-radius: 1mm; margin-right: 2mm;
+  }
+  /* 沒有 URL 時的漸層色塊備援（沿用品牌色） */
+  .ph .ph-logo-fallback{
+    display:inline-block; width: 4.2mm; height: 4.2mm;
+    border-radius: 1mm; margin-right: 2mm;
+    background: linear-gradient(135deg, var(--brand), #52d09b);
+  }
 }
 
 </style>
@@ -392,7 +405,7 @@
   <div class="print-container" style="display:none">
     <!-- P1 封面 + KPI -->
     <section class="page" id="p1">
-      <div class="ph"><span id="phLeft"></span><span>心聚指標報告</span><span id="phRight"></span></div>
+      <div class="ph"><span id="phLeft"></span><span id="phRight"></span></div>
     
       <div class="cover-grid">
         <!-- 左欄：品牌 + 標題 -->
@@ -996,6 +1009,17 @@ function preparePrintAndOpen(){
   $("#phLeft").textContent=nowStr; $("#phRight").textContent='（正式版 PDF）';
   $("#phLeft2").textContent=nowStr; $("#phRight2").textContent='（正式版 PDF）';
   $("#phLeft3").textContent=nowStr; $("#phRight3").textContent='（正式版 PDF）';
+
+  // 把 Logo 插到封面標題（心聚指標報告）前
+  (function injectPhLogo(){
+    const middle = document.querySelector('#p1 .ph span:nth-child(2)'); // 封面中間那個 <span>
+    if (!middle) return;
+  
+    const hasURL = !!(state.brand.logoUrl && state.brand.logoUrl.trim());
+    const logoHTML = `<img class="ph-logo" src="img/logo-cute2.png" alt="logo">`;
+    const titleText = '心聚坊 HeartHub Studio';
+    middle.innerHTML = `${logoHTML}${esc(titleText)}`;
+  })();
 
   $("#printDate").textContent = state.brand.date||new Date().toLocaleDateString('zh-TW',{year:'numeric',month:'2-digit',day:'2-digit'});
   $("#pcompany").textContent = state.brand.company;

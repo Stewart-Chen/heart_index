@@ -23,10 +23,8 @@
     position:sticky; backdrop-filter:saturate(140%) blur(6px);
   }
   .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
-  .logo .mark{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--brand), #52d09b)}
   .logo .mark{
-    width:28px; height:28px; border-radius:8px;
-    background:linear-gradient(135deg,var(--brand), #52d09b);
+    width:28px; height:28px;
     position:relative; overflow:hidden; display:inline-block;
   }
   .logo .mark img{
@@ -1213,7 +1211,7 @@ function preparePrintAndOpen(){
     // —— 內容：定義 → 晶片 → 分隔線 → 示意條 —— //
     const htmlDef = `
       <div class="small">
-        <div><b>平均 Δ</b>：四項指標的「課後 − 課前」平均差（-4～+4）；正值＝提升、負值＝下降；<b>&ge;0.6</b> 中等提升，<b>&ge;1.0</b> 顯著提升。</div>
+        <div><b>平均 Δ</b>：四項指標的「課後 − 課前」平均差（-4～+4）；<b>&ge;0.6</b> 中等提升，<b>&ge;1.0</b> 顯著提升。</div>
         <div><b>72h 維持率</b>：課後 72 小時內，能持續嘗試或維持練習之學員比例（%）。</div>
         <div><b>NPS</b>：淨推薦分數（-100～+100）；<b>&ge;50</b> 良好、<b>&ge;70</b> 卓越。</div>
       </div>`;

@@ -1027,9 +1027,10 @@ function preparePrintAndOpen(){
     $("#psuggest").innerHTML = listHTML(state.lite.next);
     $("#pquotes").innerHTML = state.lite.quotes.length? `<ul style="margin:0;padding-left:18px">${state.lite.quotes.map(s=>`<li>「${esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）';
     $("#pactTitle").textContent = '行動意圖';
-    const actNoteText = '願意在 72 小時內至少嘗試一次該行動之學員比例，屬意圖而非實際完成率。';
+    const actNoteText = '「行動意圖」表示願意在 72 小時內至少嘗試一次該行動之學員比例。';
     $("#pactions").innerHTML = `<div class="small" style="margin:0 0 2mm">${esc(actNoteText)}</div>` + barsHTML(state.lite.actions);
-    $("#pripple").innerHTML = barsHTML(state.lite.ripple);
+    const rippleNoteText = '「關係圈擴散」表示學員預計將本次課程的練習或正向影響帶到不同關係圈的觸及分布（%）。';
+    $("#pripple").innerHTML = `<div class="small" style="margin:0 0 2mm">${esc(rippleNoteText)}</div>` + barsHTML(state.lite.ripple);
     show(['#pquoteTitle','#pquotes','#pactTitle','#pactions','#pripTitle','#pripple','#pSugTitle','#psuggest']);
     hide(['#proiTitle','#proi','#pplanTitle','#pplan']);
   }else if(state.tab==='pro'){

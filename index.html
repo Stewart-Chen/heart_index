@@ -57,12 +57,17 @@
   .line{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 
   /* —— 長條圖（螢幕＋PDF 共用） —— */
-  .barlist{--label:100px; --track:#ffffff1a; --track-b:#ffffff26; --fill1:var(--brand); --fill2:#52d09b;
-    display:grid; grid-template-columns:var(--label) 1fr 48px; gap:6px 10px; align-items:center; font-size:14px}
+  .barlist{
+    --label:100px; 
+    --value:60px;              /* 新增：右欄寬度可調 */
+    --track:#ffffff1a; --track-b:#ffffff26; --fill1:var(--brand); --fill2:#52d09b;
+    display:grid; grid-template-columns:var(--label) minmax(0,1fr) var(--value);
+    gap:6px 10px; align-items:center; font-size:14px;
+  }  
   .barname{justify-self:end; color:var(--muted)}
   .bartrack{height:10px; border-radius:6px; background:var(--track); border:1px solid var(--track-b); overflow:hidden}
   .barfill{height:100%; background:linear-gradient(90deg,var(--fill1),var(--fill2))}
-  .barpct{justify-self:end; color:var(--muted); font-variant-numeric:tabular-nums}
+  .barpct{ justify-self:end; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; } /* 不換行 */
 
   footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
 
@@ -209,11 +214,16 @@
     margin-top:4mm;         /* 與上方封面區塊留白 */
   }
   #p1Exp{
-    max-width:150mm;        /* 內容卡片不要過寬，視覺更集中 */
-    margin: 2mm auto 0;     /* 置中 */
+    max-width:170mm;        /* 內容卡片不要過寬，視覺更集中 */
+    margin: 0 auto;     /* 置中 */
   }
-  /* 讓封面示意條跟印刷風格一致（標籤欄寬適中） */
-  #p1Exp .barlist{ --label:28mm; }
+  /* 封面長條圖：置中 + 更長 + 右欄變寬 + 條身加厚 */
+  #p1Exp .barlist{
+    --label: 40mm;                /* 左側標籤欄寬（可微調） */
+    --value: 26mm;                /* 右側數字欄寬，足夠容納 "Δ +0.85" */
+    max-width: 166mm;             /* 讓整組條圖自身也置中 */
+    margin: 1.6mm auto 0;         /* 置中 */
+  }
 
 
   /* 確保封面上方區塊與說明區有充分留白 */
@@ -253,6 +263,7 @@
 
   /* 示意長條：讓標籤欄寬更舒適 */
   #p1Exp .barlist{ --label: 36mm; }
+  #p1Exp .bartrack{ height: 12px; }   /* 條身略厚，看起來更穩 */
 
   /* 封面標頭中的小 Logo */
   .ph .ph-logo{

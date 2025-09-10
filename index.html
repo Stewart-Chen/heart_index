@@ -219,10 +219,10 @@
   }
   /* 封面長條圖：置中 + 更長 + 右欄變寬 + 條身加厚 */
   #p1Exp .barlist{
-    --label: 40mm;                /* 左側標籤欄寬（可微調） */
-    --value: 26mm;                /* 右側數字欄寬，足夠容納 "Δ +0.85" */
-    max-width: 166mm;             /* 讓整組條圖自身也置中 */
-    margin: 1.6mm auto 0;         /* 置中 */
+    --label: 32mm;                /* 左側標籤欄寬（可微調） */
+    --value: 22mm;                /* 右側數字欄寬，足夠容納 "Δ +0.85" */
+    //max-width: 166mm;             /* 讓整組條圖自身也置中 */
+   // margin: 1.6mm auto 0;         /* 置中 */
   }
 
 
@@ -1226,7 +1226,7 @@ function preparePrintAndOpen(){
       ${barsHTML(demoBars)}
       <div class="mini" style="margin-top:2mm">平均 Δ 以雙向條呈現（中線=0，範圍 -4～+4）；其餘指標為 0～100% 單向示意。</div>`;
   
-    document.getElementById('p1ExpTitle').textContent = '指標說明與示意（本場）';
+    document.getElementById('p1ExpTitle').textContent = '指標說明與示意';
     document.getElementById('p1Exp').innerHTML = htmlDef + htmlChips + htmlBars;
   } else {
     // 非 Lite 時先隱藏

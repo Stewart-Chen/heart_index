@@ -384,6 +384,10 @@
     
         <!-- 右欄：KPI 晶片（沿用原 id=pkpis 以便程式填入） -->
         <div class="kpi-rail" id="pkpis"></div>
+
+        <div class="section-title" id="p1ExpTitle" style="margin-top:4mm">指標說明與示意（本場）</div>
+        <div class="pcard small" id="p1Exp"></div>
+
       </div>
     
       <div class="pfooter"><span id="footLeft"></span><span style="float:right">第 1 / 3 頁</span></div>
@@ -1011,6 +1015,75 @@ function preparePrintAndOpen(){
       {l:"NPS 年均",v:state.ent.kpi.npsYear}
     ]);
   }
+
+  if (state.tab === 'lite') {
+    // ---- 指標數值 ----
+    const d = state.lite.deltas;
+    const avgDelta = avg([d.stable, d.res, d.social, d.focus]);       // 平均 Δ（四指標）
+    const holdPct = parseInt(String(state.lite.kpi.hold), 10) || 0;   // 72h 維持率（%）
+    const npsVal  = parseInt(String(state.lite.kpi.nps), 10) || 0;    // NPS（-100~+100）
+  
+    // ---- 好壞解讀（簡易級距）----
+    const judgeDelta = (x)=>{
+      if (x >= 1.0) return '顯著提升';
+      if (x >= 0.6) return '中等提升';
+      if (x >  0.0) return '輕微提升';
+      if (x === 0)  return '無變化';
+      return '下降';
+    };
+    const judgeHold = (p)=>{
+      if (p >= 80) return '卓越';
+      if (p >= 60) return '良好';
+      if (p >= 40) return '普通';
+      return '偏低';
+    };
+    const judgeNPS = (n)=>{
+      if (n >= 70) return '卓越';
+      if (n >= 50) return '良好';
+      if (n >=  0) return '普通';
+      return '需改善';
+    };
+  
+    // ---- 示意圖（相對達標度 0~100%）----
+    // 平均 Δ 以 1.0 當滿刻度（顯著）；NPS 轉為 0~100（-100→0，+100→100）
+    const demoBars = [
+      { name:`平均 Δ（參考 ≥0.6；顯著 ≥1.0）`, pct: Math.round(clamp(avgDelta/1.0, 0, 1)*100) },
+      { name:`72h 維持率`,                      pct: clamp(holdPct, 0, 100) },
+      { name:`NPS（範圍 -100～+100）`,          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }
+    ];
+  
+    // ---- 說明文字 ----
+    const explainHTML = `
+      <div class="small" style="margin:0 0 2mm">
+        <b>平均 Δ</b>：四指標（穩定度／壓力復原／社會連結／專注力）課後 − 課前的平均改變幅度；&gt;0 為改善，
+        約 <b>0.6</b> 為中等效果，<b>≥1.0</b> 視為顯著。<br>
+        <b>72h 維持率</b>：課後 72 小時內，能持續嘗試或維持練習之學員比例（%）。<br>
+        <b>NPS</b>：淨推薦分數（-100～+100）；<b>&ge;50</b> 良好、<b>&ge;70</b> 卓越。
+      </div>
+    `;
+  
+    // ---- 數值摘要（好壞一眼懂）----
+    const summaryHTML = `
+      <ul style="margin:0 0 2mm; padding-left:18px">
+        <li>平均 Δ：<b>${avgDelta.toFixed(2)}</b>（${judgeDelta(avgDelta)}）</li>
+        <li>72h 維持率：<b>${holdPct}%</b>（${judgeHold(holdPct)}）</li>
+        <li>NPS：<b>${npsVal >= 0 ? '+' : ''}${npsVal}</b>（${judgeNPS(npsVal)}）</li>
+      </ul>
+    `;
+  
+    // ---- 組裝到封面下半部 ----
+    $("#p1ExpTitle").textContent = '指標說明與示意（本場）';
+    $("#p1Exp").innerHTML =
+      explainHTML +
+      summaryHTML +
+      barsHTML(demoBars) +
+      `<div class="mini" style="margin-top:2mm">示意圖為「相對達標度」視覺：條長以參考門檻換算至 0–100%。</div>`;
+  } else {
+    // 非 Lite 時，封面下半部先隱藏（或可自訂其他說明）
+    $("#p1ExpTitle").style.display = 'none';
+    $("#p1Exp").style.display = 'none';
+  }
+
 
   // 第 3 頁：依模式顯示正確區塊（不重複）
   const hide = ids => ids.forEach(id=>{ $(id).style.display='none'; });

@@ -1143,7 +1143,7 @@ function preparePrintAndOpen(){
     const judgeHold  = (p)=> p>=80?'卓越':p>=60?'良好':p>=40?'普通':'偏低';
     const judgeNPS   = (n)=> n>=70?'卓越':n>=50?'良好':n>=0?'普通':'需改善';
 
-    const deltaSigned = [{ name:'平均 Δ（-4～+4，雙向）', val: avgDelta }];
+    const deltaSigned = [{ name:'平均 Δ', val: avgDelta }];
     // 示意條：把不同指標轉成 0~100 的相對達標度
     const demoBars = [
       { name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },

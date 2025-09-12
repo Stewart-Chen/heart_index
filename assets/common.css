@@ -33,9 +33,9 @@ header{
   position:sticky; backdrop-filter:saturate(140%) blur(6px);
 }
 
-.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px}
 .logo .logo-img{
-  width:50px; height:50px; border-radius:8px; object-fit:contain;
+  width:28px; height:28px; border-radius:8px; object-fit:contain;
 }
 
 .pill{padding:8px 12px; border:1px solid #ffffff26; border-radius:999px; color:var(--muted); font-size:12px}
@@ -207,7 +207,7 @@ footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
   .ph .ph-logo{ width:4.2mm; height:4.2mm; object-fit:contain; vertical-align:middle; border-radius:1mm; margin-right:2mm }
   .ph .ph-logo-fallback{
     display:inline-block; width:4.2mm; height:4.2mm;
-    border-radius:1mm; margin-right:1mm;
+    border-radius:1mm; margin-right:2mm;
     background:linear-gradient(135deg,var(--brand),#52d09b);
   }
 

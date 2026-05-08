@@ -30,7 +30,6 @@ window.Common = (function(){
     return html;
   }*/
 
-
   function barsHTML(items){
     if(!items || !items.length) return '（尚未填寫）';
   
@@ -39,8 +38,8 @@ window.Common = (function(){
     items.forEach(x=>{
       const p = clamp(parseInt(x.pct,10)||0,0,100);
   
-      // 0% → 尚未紀錄
-      if(p === 0){
+      // ✅ 明確未紀錄（不要用 0 判斷）
+      if(x.na === true){
         html += `
           <div class="barname">${esc(x.name||'—')}</div>
           <div class="bartrack">
@@ -51,7 +50,7 @@ window.Common = (function(){
         return;
       }
   
-      // 正常有數據
+      // 正常數據（包含 0% 但是真實數據）
       html += `
         <div class="barname">${esc(x.name||'—')}</div>
         <div class="bartrack">
@@ -65,7 +64,6 @@ window.Common = (function(){
     return html;
   }
   
-
   /* ── 情緒投影 ── */
   function indicatorsToPlutchik(ind){
     const c=v=>Math.max(0,Math.min(1.5,v));

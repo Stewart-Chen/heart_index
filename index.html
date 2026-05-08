@@ -900,8 +900,9 @@ function preparePrintAndOpen(){
       //{ name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },
 
       {
-        name:'72h 維持率',
-        pct: holdPct > 0 ? clamp(holdPct, 0, 100) : 0
+        name: '72h 維持率',
+        pct: holdPct > 0 ? clamp(holdPct, 0, 100) : 0,
+        na: holdPct === 0
       },
       
       { name:'NPS',          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }

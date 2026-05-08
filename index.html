@@ -66,7 +66,7 @@
       </div>
       <div class="row" id="lite_ripple_wrap" style="gap:10px;flex-direction:column"></div>
 
-      <div class="subhead">下一步建議（每行一點）</div>
+      <div class="subhead">教師回饋（每行一點）</div>
       <div class="row">
         <div class="input" style="min-width:420px"><textarea id="lite_next">下載「家庭挑戰包」
 老師優化教學清晰度（平均 4.3/5）
@@ -222,7 +222,7 @@
       <div class="section-title" id="ptbl_title">報告重點表</div>
       <div id="ptblWrap" class="pcard"></div>
 
-      <div class="section-title" id="pSugTitle" style="margin-top:5mm">下一步建議</div>
+      <div class="section-title" id="pSugTitle" style="margin-top:5mm">教師回饋</div>
       <div class="pcard small" id="psuggest"></div>
 
       <div class="section-title" id="pquoteTitle" style="margin-top:5mm">學員一句話</div>
@@ -940,7 +940,7 @@ function preparePrintAndOpen(){
   $("#ptblWrap").innerHTML=''; $("#ptblWrap").appendChild(tblClone);
 
   if(state.tab==='lite'){
-    $("#pSugTitle").textContent='下一步建議';
+    $("#pSugTitle").textContent='教師回饋';
     $("#psuggest").innerHTML = listHTML(state.lite.next);
     $("#pquotes").innerHTML = state.lite.quotes.length? `<ul style="margin:0;padding-left:18px">${state.lite.quotes.map(s=>`<li>「${esc(s)}」</li>`).join('')}</ul>`:'（尚未填寫）';
     $("#pactTitle").textContent = '行動意圖';

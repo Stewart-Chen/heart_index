@@ -227,3 +227,9 @@ footer{opacity:.7;text-align:center;font-size:12px;padding:30px 10px}
   #p1Exp .bartrack{ height:12px }
   .barpct{ white-space:nowrap }
 }
+
+@media print {
+  #p2 {
+    display: none !important;
+  }
+}

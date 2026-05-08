@@ -934,7 +934,15 @@ function preparePrintAndOpen(){
   const show = ids => ids.forEach(id=>{ $(id).style.display='block'; });
 
   // 表格 → 複製
-  function listHTML(lines){ return (lines&&lines.length)? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : '（尚未填寫）'; }
+  //function listHTML(lines){ return (lines&&lines.length)? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : '（尚未填寫）'; }
+  function listHTML(lines){
+    return (lines && lines.length)
+      ? `<div style="display:flex;flex-direction:column;gap:6px">
+           ${lines.map(s=>`<div>${esc(s)}</div>`).join('')}
+         </div>`
+      : '（尚未填寫）';
+  }
+  
   $("#ptbl_title").textContent=$("#tbl_title").textContent;
   const tblClone=$("#tbl").cloneNode(true); tblClone.style.fontSize='13px'; tblClone.style.width='100%';
   $("#ptblWrap").innerHTML=''; $("#ptblWrap").appendChild(tblClone);

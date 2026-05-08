@@ -17,7 +17,7 @@ window.Common = (function(){
   const legendHTML = ds => ds.map(d=>`<span><i class="dot" style="background:${d.color}"></i>${d.label}</span>`).join("");
   const listHTML = lines => (lines&&lines.length)? `<ul style="margin:0;padding-left:18px">${lines.map(s=>`<li>${esc(s)}</li>`).join('')}</ul>` : '（尚未填寫）';
 
-  function barsHTML(items){
+  /*function barsHTML(items){
     if(!items || !items.length) return '（尚未填寫）';
     let html = '<div class="barlist">';
     items.forEach(x=>{
@@ -28,7 +28,43 @@ window.Common = (function(){
     });
     html += '</div>';
     return html;
+  }*/
+
+
+  function barsHTML(items){
+    if(!items || !items.length) return '（尚未填寫）';
+  
+    let html = '<div class="barlist">';
+  
+    items.forEach(x=>{
+      const p = clamp(parseInt(x.pct,10)||0,0,100);
+  
+      // 0% → 尚未紀錄
+      if(p === 0){
+        html += `
+          <div class="barname">${esc(x.name||'—')}</div>
+          <div class="bartrack">
+            <div class="barfill" style="width:0%"></div>
+          </div>
+          <div class="barpct">尚未紀錄</div>
+        `;
+        return;
+      }
+  
+      // 正常有數據
+      html += `
+        <div class="barname">${esc(x.name||'—')}</div>
+        <div class="bartrack">
+          <div class="barfill" style="width:${p}%"></div>
+        </div>
+        <div class="barpct">${p}%</div>
+      `;
+    });
+  
+    html += '</div>';
+    return html;
   }
+  
 
   /* ── 情緒投影 ── */
   function indicatorsToPlutchik(ind){

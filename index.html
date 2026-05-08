@@ -834,12 +834,29 @@ function preparePrintAndOpen(){
   // 封面 KPI
   if(state.tab==='lite'){
     const d=state.lite.deltas;
-    $("#pkpis").innerHTML = kpiHTML([
+    /*$("#pkpis").innerHTML = kpiHTML([
       {l:"平均 Δ",v:avg([d.stable,d.res,d.social,d.focus]).toFixed(2)},
       {l:"72h 維持率",v:state.lite.kpi.hold},
       {l:"NPS",v:state.lite.kpi.nps},
       {l:"學員數",v:String(state.lite.kpi.learners)}
-    ]);
+    ]);*/
+    
+    const liteKpis = [
+      {l:"平均 Δ",v:avg([d.stable,d.res,d.social,d.focus]).toFixed(2)},
+      {l:"NPS",v:state.lite.kpi.nps},
+      {l:"學員數",v:String(state.lite.kpi.learners)}
+    ];
+    
+    // 只有不是 0% 才加入
+    if(state.lite.kpi.hold !== '0%' && state.lite.kpi.hold !== '0'){
+      liteKpis.splice(1, 0, {
+        l:"72h 維持率",
+        v:state.lite.kpi.hold
+      });
+    }
+    
+    $("#pkpis").innerHTML = kpiHTML(liteKpis);
+    
   }else if(state.tab==='pro'){
     $("#pkpis").innerHTML = kpiHTML([
       {l:"場次",v:String(state.pro.kpi.sessions)},

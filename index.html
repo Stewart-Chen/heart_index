@@ -899,7 +899,13 @@ function preparePrintAndOpen(){
     const deltaSigned = [{ name:'平均 Δ', val: avgDelta }];
     // 示意條：把不同指標轉成 0~100 的相對達標度
     const demoBars = [
-      { name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },
+      //{ name:'72h 維持率',                      pct: clamp(holdPct, 0, 100) },
+
+      {
+        name:'72h 維持率',
+        pct: holdPct > 0 ? clamp(holdPct, 0, 100) : 0
+      },
+      
       { name:'NPS',          pct: clamp(Math.round((npsVal + 100) / 2), 0, 100) }
     ];
   
@@ -926,7 +932,17 @@ function preparePrintAndOpen(){
     const htmlChips = `
       <div class="exp-summary">
         <span class="exp-chip">平均 Δ：${avgDelta.toFixed(2)}（${judgeDelta(avgDelta)}）</span>
-        <span class="exp-chip">72h 維持率：${holdPct}%（${judgeHold(holdPct)}）</span>
+        <!--<span class="exp-chip">72h 維持率：${holdPct}%（${judgeHold(holdPct)}）</span>-->
+
+        <span class="exp-chip">
+          72h 維持率：
+          ${
+            holdPct > 0
+              ? `${holdPct}%（${judgeHold(holdPct)}）`
+              : `尚未紀錄`
+          }
+        </span>
+        
         <span class="exp-chip">NPS：${npsVal>=0?'+':''}${npsVal}（${judgeNPS(npsVal)}）</span>
       </div>`;
   
